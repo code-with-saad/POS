@@ -1879,6 +1879,182 @@ input:checked + .slider:before {
   color: #ffffff;
 }
 
+/* ─── Phase 7 Dashboard Analytics UI ───────────────────────────── */
+.highlight-card {
+  border: 1px solid rgba(234,179,8,0.4) !important;
+  background: linear-gradient(135deg, rgba(234,179,8,0.12), rgba(245,158,11,0.04)) !important;
+}
+
+.stat-badge {
+  display: inline-block;
+  background: rgba(234,179,8,0.2);
+  color: #fbbf24;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  margin-top: 0.5rem;
+}
+
+.stat-subtext {
+  font-size: 0.75rem;
+  color: #71717a;
+  margin-top: 0.4rem;
+  display: block;
+}
+
+.analytics-section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 1.5rem;
+}
+
+.analytics-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.85rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.card-header h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.card-subtitle {
+  font-size: 0.78rem;
+  color: #71717a;
+}
+
+.card-action-link {
+  font-size: 0.8rem;
+  color: var(--accent-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.card-action-link:hover {
+  text-decoration: underline;
+}
+
+/* Top Items Progress List */
+.top-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.top-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.item-rank {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(234,179,8,0.15);
+  color: #fbbf24;
+  font-weight: 800;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-name-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+}
+
+.item-name {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.item-stat {
+  font-size: 0.8rem;
+  color: #a1a1aa;
+}
+
+.progress-bar-track {
+  height: 8px;
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #eab308, #f59e0b);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+/* Recent Orders List */
+.recent-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recent-order-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: var(--radius-sm);
+}
+
+.order-number-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.order-num {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.order-meta {
+  font-size: 0.75rem;
+  color: #71717a;
+}
+
+.order-amount {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #34d399;
+}
+
+
 
 
 

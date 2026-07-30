@@ -9,6 +9,7 @@ import categoryRoutes from './routes/categoryRoutes.js';
 import menuItemRoutes from './routes/menuItemRoutes.js';
 import tableRoutes from './routes/tableRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -39,6 +40,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/menu-items', menuItemRoutes);
 app.use('/api/tables', tableRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/analytics', analyticsRoutes);
 app.use('/api/settings', settingsRoutes);
 
 app.use((req, res) => {
