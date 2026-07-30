@@ -1,11 +1,12 @@
 # CafePOS Progress
 
-Last updated: 2026-07-30 — Cursor session 1 (Phase 0 complete)
+Last updated: 2026-07-30  Phase 1 Models completed with database connection to MongoDB Atlas.
 
 ## Phase Status
+
 - [x] Phase 0 — Setup
-- [ ] Phase 1 — Models & Seed
-- [ ] Phase 2 — Auth & RBAC
+- [x] Phase 1 — Models & Seed
+- [x] Phase 2 — Auth & RBAC
 - [ ] Phase 3 — Menu Management
 - [ ] Phase 4 — Table Management
 - [ ] Phase 5 — POS/Billing (core)
@@ -16,35 +17,49 @@ Last updated: 2026-07-30 — Cursor session 1 (Phase 0 complete)
 - [ ] Phase 10 — Hardening
 
 ## Currently Working On
-Ready to start Phase 1 — Models & Seed
+
+Ready to start Phase 3 — Menu Management (Admin)
 
 ## Verified Working This Session
-- `npm run install:all` — installs root, server, and client dependencies
-- `npm run dev` — Vite on http://localhost:5173 and Express on http://localhost:5000
-- `GET http://localhost:5000/api/health` → 200 `{"success":true,"data":{"status":"ok"}}`
-- Frontend home page loads and calls health endpoint (CORS from `CLIENT_ORIGIN`)
-- Repo layout: `server/{config,controllers,middleware,models,routes,utils}`, `client/src/{pages,components,context,api,utils}`
-- `.gitignore`, `README.md`, `docker-compose.yml` (MongoDB 7), `server/.env.example`
+
+- `server/utils/jwt.js` — `signToken` / `verifyToken` using jsonwebtoken, 12h expiry.
+- `server/middleware/auth.js` — `protect` (JWT verify → req.user) and `requireRole` guard.
+- `server/controllers/authController.js` — `POST /api/auth/login`, `GET /api/auth/me`.
+- `server/routes/authRoutes.js` — mounted at `/api/auth`.
+- `server/.env` — `JWT_SECRET` added.
+- Backend RBAC tests all passed:
+  - Admin login → 200 with JWT token ✅
+  - GET /me with valid token → 200 with user (no password) ✅
+  - Cashier login → 200 ✅
+  - Wrong credentials → 401 ✅
+  - No token → 401 ✅
+- Frontend:
+  - `client/src/api/client.js` — central fetch wrapper with auto Bearer header.
+  - `client/src/context/AuthContext.jsx` — login/logout, token in localStorage, /me on mount.
+  - `client/src/components/ProtectedRoute.jsx` — role-based guard + loading spinner.
+  - `client/src/pages/Login.jsx` — dark premium login form with error handling.
+  - `client/src/pages/AdminDashboard.jsx`, `POS.jsx` — stub pages (to be filled in Phase 3+).
+  - `client/src/App.jsx` — full routing with ProtectedRoute, RootRedirect.
+  - `client/src/index.css` — dark design system (Inter, amber palette, animations).
+  - **Note**: JWT stored in localStorage (v1 spec). httpOnly cookie is the hardened v2 upgrade path.
 
 ## Known Issues
-- MongoDB was not running on this machine during setup; server logs a clear error but still serves `/api/health`. Run `docker compose up -d` (or local MongoDB) before Phase 1 seed.
+
+- Browser automation tool (Playwright) unavailable in this environment — UI verified structurally, manual browser test recommended.
 
 ## Next Immediate Steps
-1. Ensure MongoDB is up (`docker compose up -d`), confirm server log shows `MongoDB connected`
-2. Phase 1: Mongoose models (User, Category, MenuItem, Table, Order, Settings), `npm run seed`, document credentials here
+
+1. Phase 3: Backend CRUD for `/api/categories` and `/api/menu-items` (admin writes, authenticated reads).
+2. Phase 3: Admin UI — category + menu item management, availability toggle.
 
 ## How To Run
-- Backend: `cd server && npm run dev`
-- Frontend: `cd client && npm run dev`
-- Both: `npm run dev` (from repo root)
-- MongoDB: `docker compose up -d` (from repo root)
-- Seed: `cd server && npm run seed` (Phase 1)
-- Logins: admin/[password], cashier/[password] (after Phase 1 seed)
 
-## Questions For User
-- None
+- Both: `npm run dev` (from repo root)
+- Seed: `cd server && npm run seed`
+- Logins: admin/admin123, cashier/cashier123
 
 ## Decisions/Deviations From Spec
-- Server entry: `server/index.js` (Express + listen)
-- Root `npm run dev` uses `concurrently` for server + client
-- HTTP server starts even if MongoDB is down (logs error); health route still works — start MongoDB before any DB work (Phase 1+)
+
+- JWT stored in localStorage (per spec for v1). httpOnly-cookie storage is the hardened upgrade for Phase 10.
+- DNS fallback added to `server/config/db.js` for MongoDB Atlas SRV on Windows.
+- `server/index.js` uses `node --watch` for dev auto-reload.

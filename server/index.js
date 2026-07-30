@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { connectDB } from './config/db.js';
 import healthRoutes from './routes/healthRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -20,6 +21,7 @@ app.use(
 app.use(express.json());
 
 app.use('/api/health', healthRoutes);
+app.use('/api/auth', authRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Not found' });
@@ -28,19 +30,10 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 async function start() {
+  await connectDB();
   app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
   });
-
-  try {
-    await connectDB();
-  } catch (err) {
-    console.error(
-      'MongoDB connection failed:',
-      err.message,
-      '\nStart MongoDB (e.g. docker compose up -d) and restart the server.'
-    );
-  }
 }
 
 start().catch((err) => {

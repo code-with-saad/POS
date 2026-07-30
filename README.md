@@ -5,7 +5,7 @@ Production POS for a single restaurant/cafe (MERN stack). See [PROJECT_SPEC.md](
 ## Prerequisites
 
 - Node.js 18+
-- MongoDB: run locally or start with `docker compose up -d` from the repo root
+- MongoDB Atlas cluster (Cloud)
 
 ## Setup
 
@@ -15,23 +15,17 @@ Production POS for a single restaurant/cafe (MERN stack). See [PROJECT_SPEC.md](
    npm run install:all
    ```
 
-2. Configure the backend:
+2. Configure the backend (optional if defaults are fine):
 
    ```bash
    copy server\.env.example server\.env
    ```
 
-   Edit `server/.env` if your MongoDB URL or ports differ.
-
-3. Start MongoDB (if you do not already have it on `localhost:27017`):
-
-   ```bash
-   docker compose up -d
-   ```
+   Set `MONGODB_URI` in `server/.env` if your MongoDB URL or database name differ.
 
 ## Run (development)
 
-From the repo root:
+Start local MongoDB, then from the repo root:
 
 ```bash
 npm run dev
