@@ -1,6 +1,6 @@
 # CafePOS Progress
 
-Last updated: 2026-07-30  Phase 3 Menu Management completed with full CRUD, RBAC guards, and Admin UI.
+Last updated: 2026-07-30  Phase 4 Table Management completed with full CRUD, RBAC guards, and Admin UI.
 
 ## Phase Status
 
@@ -8,7 +8,7 @@ Last updated: 2026-07-30  Phase 3 Menu Management completed with full CRUD, RBAC
 - [x] Phase 1 — Models & Seed
 - [x] Phase 2 — Auth & RBAC
 - [x] Phase 3 — Menu Management
-- [ ] Phase 4 — Table Management
+- [x] Phase 4 — Table Management
 - [ ] Phase 5 — POS/Billing (core)
 - [ ] Phase 6 — Order History & Kitchen View
 - [ ] Phase 7 — Dashboard & Reports
@@ -18,31 +18,24 @@ Last updated: 2026-07-30  Phase 3 Menu Management completed with full CRUD, RBAC
 
 ## Currently Working On
 
-Ready to start Phase 4 — Table Management (Admin)
+Ready to start Phase 5 — POS / Billing (Cashier) — THE CORE FEATURE [P0]
 
 ## Verified Working This Session
 
-- `server/controllers/categoryController.js` & `categoryRoutes.js`:
-  - `GET /api/categories` (authenticated reads)
-  - `POST /api/categories` (admin only create)
-  - `PUT /api/categories/:id` (admin only update)
-  - `DELETE /api/categories/:id` (admin only delete)
-- `server/controllers/menuItemController.js` & `menuItemRoutes.js`:
-  - `GET /api/menu-items` (authenticated reads, optional category query filter)
-  - `POST /api/menu-items` (admin only create)
-  - `PUT /api/menu-items/:id` (admin only update)
-  - `PATCH /api/menu-items/:id/availability` (admin only availability toggle)
-  - `DELETE /api/menu-items/:id` (admin only delete)
+- `server/controllers/tableController.js` & `tableRoutes.js`:
+  - `GET /api/tables` (authenticated reads, optional section/status filters)
+  - `POST /api/tables` (admin create)
+  - `PUT /api/tables/:id` (admin update)
+  - `PATCH /api/tables/:id/status` (authenticated status update: `available` | `occupied`)
+  - `DELETE /api/tables/:id` (admin delete)
 - Backend API tests verified:
-  - Admin category list & create ✅
+  - Admin list & create table ✅
   - Cashier write attempt blocked with 403 Forbidden ✅
-  - Cashier read menu items ✅
-  - Admin toggle availability switch ✅
+  - Toggle table status to `occupied` ✅
+  - Delete table ✅
 - Frontend UI:
-  - `AdminLayout.jsx` sidebar layout with active links & user badge.
-  - `CategoriesPage.jsx` table list, Add/Edit modals, delete confirmation.
-  - `MenuItemsPage.jsx` category tabs, search input, price in PKR format, availability toggle switch, Add/Edit modals.
-  - `AdminDashboard.jsx` stat cards linked to category & menu item pages.
+  - `TablesPage.jsx` — visual card grid of tables, color-coded status badges, section filters, capacity tags, status toggle actions, Add/Edit table modals.
+  - Linked in `AdminLayout` sidebar and `App.jsx` routes at `/admin/tables`.
 
 ## Known Issues
 
@@ -50,8 +43,8 @@ Ready to start Phase 4 — Table Management (Admin)
 
 ## Next Immediate Steps
 
-1. Phase 4: CRUD `/api/tables` (admin writes, authenticated reads), table status management (`available` | `occupied`).
-2. Phase 4 Admin UI: Tables management page, add/edit table modals, status visual indicators.
+1. Phase 5: Implement `POST /api/orders` (server computes subtotal, tax, discount, total formula), `GET /api/orders`, `PATCH /api/orders/:id/status`.
+2. Phase 5 Cashier UI: Order type selection (`dine-in`, `takeaway`, `delivery`), Table selector for dine-in, menu browser by category, Cart (qty +/-, remove, per-item notes), Checkout modal with payment method, and Print-friendly Receipt template (`window.print()`).
 
 ## How To Run
 
@@ -61,5 +54,4 @@ Ready to start Phase 4 — Table Management (Admin)
 
 ## Decisions/Deviations From Spec
 
-- Category filter tabs in Menu Items page allow instant client & server filtering.
-- Item availability is toggled in real-time using a modern toggle switch UI.
+- Seating capacity and section indicators are visually displayed on each table card with quick status toggle buttons.
