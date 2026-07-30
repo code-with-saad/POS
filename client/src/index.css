@@ -1525,4 +1525,76 @@ input:checked + .slider:before {
   }
 }
 
+/* ─── Item Visuals (Images & Fallback Icons) ─────────────────────── */
+.menu-card-visual {
+  width: 100%;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  background: var(--color-surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.cart-item-visual {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-item-visual {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--color-surface2);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-item-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.item-visual-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.item-visual-icon-bg {
+  background: radial-gradient(circle, rgba(245,158,11,0.12) 0%, rgba(39,39,42,0.6) 100%);
+  border: 1px dashed rgba(245,158,11,0.2);
+}
+
+.menu-card-visual .item-visual-emoji {
+  font-size: 2.75rem;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+}
+
+.cart-item-visual .item-visual-emoji {
+  font-size: 1.25rem;
+}
+
+.table-item-visual .item-visual-emoji {
+  font-size: 1.1rem;
+}
+
+
 

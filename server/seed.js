@@ -65,6 +65,7 @@ async function seed() {
         price: 350,
         category: catMap['Hot Beverages'],
         isAvailable: true,
+        imageUrl: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=400&q=80',
       },
       {
         name: 'Cappuccino',
@@ -72,6 +73,7 @@ async function seed() {
         price: 480,
         category: catMap['Hot Beverages'],
         isAvailable: true,
+        imageUrl: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80',
       },
       {
         name: 'Karak Chai',
@@ -79,6 +81,7 @@ async function seed() {
         price: 180,
         category: catMap['Hot Beverages'],
         isAvailable: true,
+        imageUrl: '', // Will use smart fallback icon 🫖
       },
       // Cold Beverages
       {
@@ -87,6 +90,7 @@ async function seed() {
         price: 520,
         category: catMap['Cold Beverages'],
         isAvailable: true,
+        imageUrl: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=400&q=80',
       },
       {
         name: 'Mint Margarita',
@@ -94,6 +98,7 @@ async function seed() {
         price: 390,
         category: catMap['Cold Beverages'],
         isAvailable: true,
+        imageUrl: '', // Will use smart fallback icon 🍸
       },
       {
         name: 'Peach Iced Tea',
@@ -101,6 +106,7 @@ async function seed() {
         price: 420,
         category: catMap['Cold Beverages'],
         isAvailable: true,
+        imageUrl: '', // Will use smart fallback icon 🥤
       },
       // Fast Food
       {
@@ -109,6 +115,7 @@ async function seed() {
         price: 750,
         category: catMap['Fast Food'],
         isAvailable: true,
+        imageUrl: '', // Will use smart fallback icon 🥪
       },
       {
         name: 'Zinger Burger',
@@ -116,6 +123,7 @@ async function seed() {
         price: 680,
         category: catMap['Fast Food'],
         isAvailable: true,
+        imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80',
       },
       {
         name: 'Loaded Fries',
@@ -123,6 +131,7 @@ async function seed() {
         price: 550,
         category: catMap['Fast Food'],
         isAvailable: true,
+        imageUrl: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=400&q=80',
       },
       {
         name: 'Chicken Margherita Pizza (Personal)',
@@ -130,6 +139,7 @@ async function seed() {
         price: 990,
         category: catMap['Fast Food'],
         isAvailable: true,
+        imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80',
       },
       // Desserts
       {
@@ -138,6 +148,7 @@ async function seed() {
         price: 580,
         category: catMap['Desserts'],
         isAvailable: true,
+        imageUrl: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=400&q=80',
       },
       {
         name: 'New York Cheesecake',
@@ -145,6 +156,7 @@ async function seed() {
         price: 650,
         category: catMap['Desserts'],
         isAvailable: true,
+        imageUrl: '', // Will use smart fallback icon 🍰
       },
     ]);
 

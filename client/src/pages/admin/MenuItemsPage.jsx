@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../api/client.js';
+import ItemVisual from '../../components/ItemVisual.jsx';
 
 export default function MenuItemsPage() {
   const [items, setItems] = useState([]);
@@ -211,11 +212,19 @@ export default function MenuItemsPage() {
               {filteredItems.map((item) => (
                 <tr key={item._id}>
                   <td>
-                    <div className="item-name-cell">
-                      <span className="item-title">{item.name}</span>
-                      {item.description && (
-                        <span className="item-desc">{item.description}</span>
-                      )}
+                    <div className="table-item-cell">
+                      <ItemVisual
+                        imageUrl={item.imageUrl}
+                        itemName={item.name}
+                        categoryName={item.category?.name}
+                        className="table-item-visual"
+                      />
+                      <div className="item-name-cell">
+                        <span className="item-title">{item.name}</span>
+                        {item.description && (
+                          <span className="item-desc">{item.description}</span>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td>

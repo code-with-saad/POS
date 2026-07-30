@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../api/client.js';
+import ItemVisual from '../components/ItemVisual.jsx';
 
 export default function POS() {
   const { user, logout } = useAuth();
@@ -118,6 +119,8 @@ export default function POS() {
             price: menuItem.price,
             quantity: 1,
             notes: '',
+            imageUrl: menuItem.imageUrl,
+            categoryName: menuItem.category?.name,
           },
         ];
       }
@@ -315,6 +318,13 @@ export default function POS() {
                   className={`menu-card ${!item.isAvailable ? 'menu-card-unavailable' : ''}`}
                   onClick={() => addToCart(item)}
                 >
+                  <ItemVisual
+                    imageUrl={item.imageUrl}
+                    itemName={item.name}
+                    categoryName={item.category?.name}
+                    className="menu-card-visual"
+                  />
+
                   <div className="menu-card-header">
                     <span className="menu-card-name">{item.name}</span>
                     <span className="menu-card-price">Rs. {item.price}</span>
@@ -373,6 +383,12 @@ export default function POS() {
             ) : (
               cart.map((item) => (
                 <div key={item.menuItem} className="cart-item-row">
+                  <ItemVisual
+                    imageUrl={item.imageUrl}
+                    itemName={item.name}
+                    categoryName={item.categoryName}
+                    className="cart-item-visual"
+                  />
                   <div className="cart-item-info">
                     <span className="cart-item-name">{item.name}</span>
                     <span className="cart-item-unit-price">Rs. {item.price} each</span>
