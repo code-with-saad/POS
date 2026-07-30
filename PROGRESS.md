@@ -1,6 +1,6 @@
 # CafePOS Progress
 
-Last updated: 2026-07-30  Phase 7 Dashboard & Reports completed with visual enhancements.
+Last updated: 2026-07-30  Phase 9 — Settings fully implemented and verified.
 
 ## Phase Status
 
@@ -13,15 +13,19 @@ Last updated: 2026-07-30  Phase 7 Dashboard & Reports completed with visual enha
 - [x] Phase 6 — Order History & Kitchen View
 - [x] Phase 7 — Dashboard & Reports
 - [x] Phase 8 — Cashier Management
-- [ ] Phase 9 — Settings
+- [x] Phase 9 — Settings
 - [ ] Phase 10 — Hardening
 
 ## Currently Working On
 
-Ready to start Phase 8 — Cashier Management
+Ready to start Phase 10 — Hardening (final polish, error handling, security audit)
 
 ## Verified Working This Session
 
+- **Phase 9 Settings**:
+  - `Settings` MongoDB model (`restaurantName`, `address`, `phone`, `taxRatePercent`, `receiptFooter`) with defaults.
+  - `GET /api/settings` — authenticated (any role). `PUT /api/settings` — admin only (role-guarded).
+  - `AdminSettingsPage.jsx` (`/admin/settings`) — grouped form cards (General / Billing / Receipts), unsaved-changes detection banner, discard button, input validation (tax 0–100), toast notifications on success/error, fully responsive.
 - **Visual Enhancement**:
   - `ItemVisual.jsx` component created: Renders `imageUrl` if provided, otherwise dynamically resolves smart fallback icons (e.g. ☕, 🥤, 🍔, 🥪, 🍕, 🍰, 🫖) based on item name and category.
   - Integrated into POS menu cards, POS cart thumbnails, and Admin Menu Item table rows.
@@ -33,6 +37,12 @@ Ready to start Phase 8 — Cashier Management
 - **Phase 7 Dashboard & Reports**:
   - `AdminDashboard.jsx` (/admin/dashboard) — summary cards (today's sales, orders, avg value), date range selector, today/week/month toggle, top 5 best-selling items chart, recent orders list, and simple trend indicator (gray when no comparison data). Updated seed to add daily sales.
   - Top-selling items chart uses fetched sales totals (not quantities) for consistency with sales-focused display; rank and percentage calculations adjusted accordingly.
+- **Phase 8 Cashier Management**:
+  - `CashiersPage.jsx` (/admin/cashiers) — Enhanced table displays cashier code, name, phone, role (default `cashier`), status toggle (Active/Inactive), and timestamped creation date. Includes inline Delete action. Added to Admin Layout sidebar.
+  - Admin side actions:
+    - Delete action implemented with confirmation modal and database removal. Resets code for reused codes.
+    - Status toggle with immediate API update and confirmation.
+  - Updated seed to add three cashier users and two active cashiers with codes CA001 and CA002.
 
 ## Known Issues
 
@@ -40,7 +50,7 @@ Ready to start Phase 8 — Cashier Management
 
 ## Next Immediate Steps
 
-1. Phase 8: Cashier Management
+1. Phase 10 — Hardening (final polish, error handling, security audit)
 
 ## How To Run
 
