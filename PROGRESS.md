@@ -1,6 +1,6 @@
 # CafePOS Progress
 
-Last updated: 2026-07-30  Phase 5 POS / Billing (Core MVP) completed with full cashier billing flow and print-friendly receipt.
+Last updated: 2026-07-30  Phase 6 Order History & Kitchen View completed with visual enhancements.
 
 ## Phase Status
 
@@ -10,7 +10,7 @@ Last updated: 2026-07-30  Phase 5 POS / Billing (Core MVP) completed with full c
 - [x] Phase 3 — Menu Management
 - [x] Phase 4 — Table Management
 - [x] Phase 5 — POS/Billing (core)
-- [ ] Phase 6 — Order History & Kitchen View
+- [x] Phase 6 — Order History & Kitchen View
 - [ ] Phase 7 — Dashboard & Reports
 - [ ] Phase 8 — Cashier Management
 - [ ] Phase 9 — Settings
@@ -18,32 +18,18 @@ Last updated: 2026-07-30  Phase 5 POS / Billing (Core MVP) completed with full c
 
 ## Currently Working On
 
-Ready to start Phase 6 — Order History & Kitchen View
+Ready to start Phase 7 — Dashboard & Reports (Admin)
 
 ## Verified Working This Session
 
-- `server/controllers/orderController.js` & `orderRoutes.js`:
-  - `POST /api/orders` — server computes subtotal, discount, tax (16%), and total per specification formula. Snapshots item name/price at order creation time. Auto-generates `orderNumber` (YYMMDD-XXX). Auto-occupies table on `dine-in`.
-  - `GET /api/orders` — list orders with optional status, orderType, and date filters.
-  - `GET /api/orders/:id` — fetch single order details.
-  - `PATCH /api/orders/:id/status` — update order status (`pending`, `preparing`, `served`, `completed`, `cancelled`). Auto-frees table on `completed` or `cancelled`.
-- `server/controllers/settingsController.js` & `settingsRoutes.js`:
-  - `GET /api/settings` — returns restaurant info, tax rate, receipt footer.
-  - `PUT /api/settings` — admin update.
-- Backend API tests verified:
-  - Cashier order creation with dine-in & table binding ✅
-  - Server calculation verification (subtotal 1950, discount 50, tax 304, total 2204) ✅
-  - Table marked `occupied` on order creation ✅
-  - Table auto-reset to `available` on order completion ✅
-- Frontend POS UI:
-  - `client/src/pages/POS.jsx`:
-    - Responsive 2-column layout.
-    - Order type selector (`Dine-In`, `Takeaway`, `Delivery`).
-    - Table selection modal for Dine-In orders.
-    - Menu item browser with category filter tabs & search input.
-    - Cart panel with item quantity +/- controls, line totals, per-item notes input, flat PKR discount input, tax display, and grand total.
-    - Checkout modal with payment method toggle (`Cash` / `Card`), cash tendered & change return helper.
-    - Printable thermal receipt modal with `@media print` CSS for `window.print()`.
+- **Visual Enhancement**:
+  - `ItemVisual.jsx` component created: Renders `imageUrl` if provided, otherwise dynamically resolves smart fallback icons (e.g. ☕, 🥤, 🍔, 🥪, 🍕, 🍰, 🫖) based on item name and category.
+  - Integrated into POS menu cards, POS cart thumbnails, and Admin Menu Item table rows.
+  - Updated `seed.js` with sample Unsplash images for selected items.
+- **Phase 6 Order History & Kitchen View**:
+  - `OrdersHistoryPage.jsx` (`/admin/orders`) — Filter by status, orderType, date filter. Detailed breakdown modal with item notes, cashier name, payment method, and one-click status transitions (`Pending` -> `Preparing` -> `Served` -> `Completed` / `Cancelled`).
+  - `KitchenViewPage.jsx` (`/kitchen`) — High-contrast Kitchen Display System (KDS). Renders active pending & preparing tickets with elapsed time badges (`5m ago`), highlighted item notes, status action buttons (`Start Preparing`, `Mark Ready / Served`, `Complete`), and 10s auto-refresh toggle.
+  - Integrated links into `AdminLayout.jsx` sidebar and `POS.jsx` top bar.
 
 ## Known Issues
 
@@ -51,7 +37,7 @@ Ready to start Phase 6 — Order History & Kitchen View
 
 ## Next Immediate Steps
 
-1. Phase 6: Order History & Kitchen View (`GET /api/orders` filter UI, detail modal, Kitchen View page for preparing/served items status updates).
+1. Phase 7: Dashboard & Reports (Admin) — today's sales total, order count, top 5 items, date-range sales report, summary metric cards & charts.
 
 ## How To Run
 
@@ -61,5 +47,5 @@ Ready to start Phase 6 — Order History & Kitchen View
 
 ## Decisions/Deviations From Spec
 
-- All price inputs, subtotal calculations, tax, and totals strictly enforce whole PKR rupees rounding per specification.
-- Thermal receipt utilizes `@media print` rules for browser `window.print()` functionality.
+- Product images load seamlessly with graceful fallback to custom name/category emoji icons.
+- Kitchen display auto-refreshes every 10 seconds to ensure kitchen staff see new orders instantly without manual refreshing.

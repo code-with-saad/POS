@@ -15,7 +15,8 @@ export default function AdminLayout() {
     { path: '/admin/categories', label: 'Categories', icon: '📁' },
     { path: '/admin/menu-items', label: 'Menu Items', icon: '🍔' },
     { path: '/admin/tables', label: 'Tables', icon: '🪑' },
-    { path: '/admin/orders', label: 'Orders', icon: '🧾' },
+    { path: '/admin/orders', label: 'Order History', icon: '🧾' },
+    { path: '/kitchen', label: 'Kitchen View', icon: '👨‍🍳' },
     { path: '/admin/settings', label: 'Settings', icon: '⚙️' },
   ];
 

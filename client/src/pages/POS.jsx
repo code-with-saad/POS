@@ -250,6 +250,9 @@ export default function POS() {
         </div>
 
         <div className="pos-header-right">
+          <Link to="/kitchen" className="btn-admin-link">
+            👨‍🍳 Kitchen View
+          </Link>
           {user?.role === 'admin' && (
             <Link to="/admin" className="btn-admin-link">
               🛠️ Admin Dashboard

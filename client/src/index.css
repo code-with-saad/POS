@@ -1596,5 +1596,216 @@ input:checked + .slider:before {
   font-size: 1.1rem;
 }
 
+/* ─── Status Badges / Pills ───────────────────────────────────────── */
+.status-pill {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.badge-status-pending {
+  background: rgba(245,158,11,0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245,158,11,0.3);
+}
+
+.badge-status-preparing {
+  background: rgba(59,130,246,0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59,130,246,0.3);
+}
+
+.badge-status-served {
+  background: rgba(168,85,247,0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168,85,247,0.3);
+}
+
+.badge-status-completed {
+  background: rgba(16,185,129,0.15);
+  color: #34d399;
+  border: 1px solid rgba(16,185,129,0.3);
+}
+
+.badge-status-cancelled {
+  background: rgba(239,68,68,0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239,68,68,0.3);
+}
+
+/* ─── Kitchen Display System (KDS) ────────────────────────────────── */
+.kitchen-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #09090b;
+}
+
+.kitchen-header {
+  height: 68px;
+  background: #18181b;
+  border-bottom: 1px solid #3f3f46;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kitchen-main {
+  flex: 1;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.kitchen-tickets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.kitchen-ticket {
+  background: #18181b;
+  border: 1px solid #3f3f46;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+  animation: slideUp 0.3s ease;
+}
+
+.ticket-pending {
+  border-top: 5px solid #f59e0b;
+}
+
+.ticket-preparing {
+  border-top: 5px solid #3b82f6;
+}
+
+.ticket-served {
+  border-top: 5px solid #a855f7;
+}
+
+.ticket-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.ticket-order-no {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #fbbf24;
+  font-family: monospace;
+  display: block;
+}
+
+.ticket-time-ago {
+  font-size: 0.75rem;
+  color: #a1a1aa;
+}
+
+.ticket-sub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #27272a;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.ticket-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  flex: 1;
+  padding: 0.5rem 0;
+}
+
+.ticket-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(63,63,70,0.4);
+}
+
+.ticket-item-row:last-child {
+  border-bottom: none;
+}
+
+.ticket-qty {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #f59e0b;
+  background: rgba(245,158,11,0.15);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.ticket-item-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fafafa;
+  display: block;
+}
+
+.ticket-item-note {
+  font-size: 0.8rem;
+  color: #fde047;
+  background: rgba(234,179,8,0.15);
+  border: 1px solid rgba(234,179,8,0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 3px;
+  font-weight: 600;
+}
+
+.ticket-footer {
+  padding-top: 0.5rem;
+}
+
+.btn-ticket {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-ticket:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-ticket-prep {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #ffffff;
+}
+
+.btn-ticket-serve {
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  color: #ffffff;
+}
+
+.btn-ticket-complete {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+}
+
+
 
 

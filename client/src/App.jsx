@@ -7,6 +7,8 @@ import AdminDashboard from './pages/AdminDashboard.jsx';
 import CategoriesPage from './pages/admin/CategoriesPage.jsx';
 import MenuItemsPage from './pages/admin/MenuItemsPage.jsx';
 import TablesPage from './pages/admin/TablesPage.jsx';
+import OrdersHistoryPage from './pages/admin/OrdersHistoryPage.jsx';
+import KitchenViewPage from './pages/KitchenViewPage.jsx';
 import POS from './pages/POS.jsx';
 
 function RootRedirect() {
@@ -22,6 +24,7 @@ export default function App() {
       <Route path="/" element={<RootRedirect />} />
       <Route path="/login" element={<Login />} />
 
+      {/* Admin Subroutes */}
       <Route
         path="/admin"
         element={
@@ -34,9 +37,21 @@ export default function App() {
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="menu-items" element={<MenuItemsPage />} />
         <Route path="tables" element={<TablesPage />} />
+        <Route path="orders" element={<OrdersHistoryPage />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Route>
 
+      {/* Kitchen Display View */}
+      <Route
+        path="/kitchen"
+        element={
+          <ProtectedRoute allowedRoles={['cashier', 'admin']}>
+            <KitchenViewPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Cashier POS Terminal */}
       <Route
         path="/pos/*"
         element={
