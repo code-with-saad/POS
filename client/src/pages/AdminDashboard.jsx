@@ -78,90 +78,119 @@ export default function AdminDashboard() {
       </header>
 
       {/* KPI Cards Row 1: Sales & Revenue */}
-      <div className="dashboard-grid">
+      <div className="dashboard-grid mb-6">
         <div className="stat-card highlight-card">
-          <div className="stat-icon">💰</div>
-          <div className="stat-content">
-            <span className="stat-value">Rs. {todayRevenue.toLocaleString()}</span>
-            <span className="stat-label">Today's Revenue</span>
+          <div>
+            <div className="stat-icon">💰</div>
+            <div className="stat-content">
+              <span className="stat-value">Rs. {todayRevenue.toLocaleString()}</span>
+              <span className="stat-label">Today's Revenue</span>
+            </div>
           </div>
-          <span className="stat-badge">{todayOrders} orders today</span>
+          <div>
+            <span className="stat-badge">{todayOrders} orders today</span>
+          </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">📈</div>
-          <div className="stat-content">
-            <span className="stat-value">Rs. {totalRevenue.toLocaleString()}</span>
-            <span className="stat-label">All-Time Revenue</span>
+          <div>
+            <div className="stat-icon">📈</div>
+            <div className="stat-content">
+              <span className="stat-value">Rs. {totalRevenue.toLocaleString()}</span>
+              <span className="stat-label">All-Time Revenue</span>
+            </div>
           </div>
-          <span className="stat-subtext">{totalOrders} total completed</span>
+          <div>
+            <span className="stat-subtext">{totalOrders} completed orders</span>
+          </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">🧾</div>
-          <div className="stat-content">
-            <span className="stat-value">Rs. {avgOrderValue.toLocaleString()}</span>
-            <span className="stat-label">Average Order Value</span>
+          <div>
+            <div className="stat-icon">🧾</div>
+            <div className="stat-content">
+              <span className="stat-value">Rs. {avgOrderValue.toLocaleString()}</span>
+              <span className="stat-label">Average Order Value</span>
+            </div>
           </div>
-          <span className="stat-subtext">Per order average</span>
+          <div>
+            <span className="stat-subtext">Per order average</span>
+          </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">📦</div>
-          <div className="stat-content">
-            <span className="stat-value">{totalOrders}</span>
-            <span className="stat-label">Total Completed Orders</span>
+          <div>
+            <div className="stat-icon">📦</div>
+            <div className="stat-content">
+              <span className="stat-value">{totalOrders}</span>
+              <span className="stat-label">Completed Orders</span>
+            </div>
           </div>
-          <Link to="/admin/orders" className="stat-link">
-            View All →
-          </Link>
-        </div>
-      </div>
-
-      {/* KPI Cards Row 2: Catalog Summary */}
-      <div className="dashboard-grid mt-4">
-        <div className="stat-card">
-          <div className="stat-icon">📁</div>
-          <div className="stat-content">
-            <span className="stat-value">{categoriesCount}</span>
-            <span className="stat-label">Categories</span>
+          <div>
+            <Link to="/admin/orders" className="stat-link">
+              View All →
+            </Link>
           </div>
-          <Link to="/admin/categories" className="stat-link">
-            Manage →
-          </Link>
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">🍔</div>
-          <div className="stat-content">
-            <span className="stat-value">{menuItemsCount}</span>
-            <span className="stat-label">Menu Items</span>
+          <div>
+            <div className="stat-icon">📁</div>
+            <div className="stat-content">
+              <span className="stat-value">{categoriesCount}</span>
+              <span className="stat-label">Categories</span>
+            </div>
           </div>
-          <Link to="/admin/menu-items" className="stat-link">
-            Manage →
-          </Link>
+          <div>
+            <Link to="/admin/categories" className="stat-link">
+              Manage →
+            </Link>
+          </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">🪑</div>
-          <div className="stat-content">
-            <span className="stat-value">Tables</span>
-            <span className="stat-label">Layout & Status</span>
+          <div>
+            <div className="stat-icon">🍔</div>
+            <div className="stat-content">
+              <span className="stat-value">{menuItemsCount}</span>
+              <span className="stat-label">Menu Items</span>
+            </div>
           </div>
-          <Link to="/admin/tables" className="stat-link">
-            Manage →
-          </Link>
+          <div>
+            <Link to="/admin/menu-items" className="stat-link">
+              Manage →
+            </Link>
+          </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">👨‍🍳</div>
-          <div className="stat-content">
-            <span className="stat-value">Kitchen</span>
-            <span className="stat-label">Live Display</span>
+          <div>
+            <div className="stat-icon">🪑</div>
+            <div className="stat-content">
+              <span className="stat-value">Tables</span>
+              <span className="stat-label">Layout & Status</span>
+            </div>
           </div>
-          <Link to="/kitchen" className="stat-link">
-            Open KDS →
-          </Link>
+          <div>
+            <Link to="/admin/tables" className="stat-link">
+              Manage →
+            </Link>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div>
+            <div className="stat-icon">👨‍🍳</div>
+            <div className="stat-content">
+              <span className="stat-value">Kitchen</span>
+              <span className="stat-label">Live KDS Display</span>
+            </div>
+          </div>
+          <div>
+            <Link to="/kitchen" className="stat-link">
+              Open KDS →
+            </Link>
+          </div>
         </div>
       </div>
 

@@ -2099,6 +2099,150 @@ input:checked + .slider:before {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ─── Premium Admin Table & Card System ─────────────────────────── */
+.admin-card {
+  background: var(--bg-card, #18181b);
+  border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+  border-radius: var(--radius-md, 12px);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+  font-size: 0.88rem;
+}
+
+.admin-table th {
+  background: rgba(255, 255, 255, 0.03);
+  color: #a1a1aa;
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-main, #f4f4f5);
+  vertical-align: middle;
+}
+
+.admin-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.admin-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.user-badge-code {
+  background: rgba(234, 179, 8, 0.12);
+  color: #fbbf24;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-family: monospace;
+}
+
+.btn-xs {
+  padding: 0.3rem 0.65rem !important;
+  font-size: 0.78rem !important;
+  border-radius: 6px !important;
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border: 1px solid rgba(239, 68, 68, 0.4) !important;
+  color: #f87171 !important;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.3) !important;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.text-muted {
+  color: #a1a1aa;
+}
+
+.text-sm {
+  font-size: 0.8rem;
+}
+
+/* ─── Dashboard Clean Alignment ───────────────────────────────── */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.stat-card {
+  background: var(--bg-card, #18181b);
+  border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+  border-radius: var(--radius-md, 12px);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(234,179,8,0.4);
+}
+
+.stat-icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.75rem;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main, #ffffff);
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #a1a1aa;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.mb-6 { margin-bottom: 1.5rem !important; }
+.p-0 { padding: 0 !important; }
+.p-4 { padding: 1rem !important; }
+
+
+
 
 
 

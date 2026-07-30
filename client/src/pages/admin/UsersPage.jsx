@@ -191,78 +191,84 @@ export default function UsersPage() {
           <p>Loading staff accounts...</p>
         </div>
       ) : (
-        <div className="table-responsive card">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>NAME</th>
-                <th>USERNAME</th>
-                <th>ROLE</th>
-                <th>STATUS</th>
-                <th>CREATED DATE</th>
-                <th className="text-right">ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.length === 0 ? (
+        <div className="admin-card p-0">
+          <div className="table-responsive">
+            <table className="admin-table">
+              <thead>
                 <tr>
-                  <td colSpan="6" className="text-center p-4">
-                    No users found.
-                  </td>
+                  <th>STAFF MEMBER</th>
+                  <th>USERNAME</th>
+                  <th>ROLE</th>
+                  <th>STATUS</th>
+                  <th>CREATED DATE</th>
+                  <th className="text-right">ACTIONS</th>
                 </tr>
-              ) : (
-                users.map((u) => (
-                  <tr key={u._id}>
-                    <td>
-                      <div className="user-name-cell">
-                        <span className="user-avatar-sm">{u.name[0].toUpperCase()}</span>
-                        <strong>{u.name}</strong>
-                      </div>
-                    </td>
-                    <td>
-                      <code>@{u.username}</code>
-                    </td>
-                    <td>
-                      <span className={`badge badge-${u.role === 'admin' ? 'completed' : 'pending'}`}>
-                        {u.role.toUpperCase()}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`badge ${u.isActive ? 'badge-completed' : 'badge-cancelled'}`}>
-                        {u.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td>{new Date(u.createdAt).toLocaleDateString()}</td>
-                    <td className="text-right">
-                      <div className="action-buttons-group">
-                        <button
-                          className="btn-secondary btn-xs"
-                          onClick={() => openEditModal(u)}
-                          title="Edit User Details"
-                        >
-                          ✏️ Edit
-                        </button>
-                        <button
-                          className="btn-secondary btn-xs"
-                          onClick={() => openResetModal(u)}
-                          title="Reset Password"
-                        >
-                          🔑 Key
-                        </button>
-                        <button
-                          className="btn-danger btn-xs"
-                          onClick={() => handleDeleteUser(u)}
-                          title="Delete Account"
-                        >
-                          🗑️
-                        </button>
-                      </div>
+              </thead>
+              <tbody>
+                {users.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="text-center p-4">
+                      No users found.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  users.map((u) => (
+                    <tr key={u._id}>
+                      <td>
+                        <div className="user-name-cell">
+                          <span className="user-avatar-sm">{u.name[0].toUpperCase()}</span>
+                          <span className="font-semibold">{u.name}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <code className="user-badge-code">@{u.username}</code>
+                      </td>
+                      <td>
+                        <span className={`badge badge-${u.role === 'admin' ? 'completed' : 'pending'}`}>
+                          {u.role.toUpperCase()}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`badge ${u.isActive ? 'badge-completed' : 'badge-cancelled'}`}>
+                          {u.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="text-muted text-sm">
+                          {new Date(u.createdAt).toLocaleDateString()}
+                        </span>
+                      </td>
+                      <td className="text-right">
+                        <div className="action-buttons-group">
+                          <button
+                            className="btn-secondary btn-xs"
+                            onClick={() => openEditModal(u)}
+                            title="Edit User Details"
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button
+                            className="btn-secondary btn-xs"
+                            onClick={() => openResetModal(u)}
+                            title="Reset Password"
+                          >
+                            🔑 Key
+                          </button>
+                          <button
+                            className="btn-danger btn-xs"
+                            onClick={() => handleDeleteUser(u)}
+                            title="Delete Account"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
