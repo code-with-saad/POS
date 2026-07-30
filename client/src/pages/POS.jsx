@@ -34,6 +34,7 @@ export default function POS() {
   const [cashTendered, setCashTendered] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [completedOrder, setCompletedOrder] = useState(null);
+  const [checkoutError, setCheckoutError] = useState('');
 
   useEffect(() => {
     fetchPOSData();
@@ -167,6 +168,16 @@ export default function POS() {
       setShowTableModal(true);
       return;
     }
+
+    // Cash validation — tendered must cover the total
+    if (paymentMethod === 'cash') {
+      const tendered = Number(cashTendered) || 0;
+      if (tendered < grandTotal) {
+        setCheckoutError(`Cash tendered (Rs. ${tendered.toLocaleString()}) is less than total (Rs. ${grandTotal.toLocaleString()}). Please give enough cash.`);
+        return;
+      }
+    }
+    setCheckoutError('');
 
     setSubmitting(true);
     setError('');
@@ -593,9 +604,32 @@ export default function POS() {
               {paymentMethod === 'cash' && (
                 <div className="form-group">
                   <label>Cash Tendered (PKR)</label>
+
+                  {/* Quick Denomination Buttons */}
+                  <div className="cash-denominations">
+                    {[100, 200, 500, 1000, 5000].map((denom) => (
+                      <button
+                        key={denom}
+                        type="button"
+                        className={`denom-btn ${Number(cashTendered) === denom ? 'denom-btn-active' : ''}`}
+                        onClick={() => setCashTendered(String(denom))}
+                      >
+                        {denom >= 1000 ? `${denom / 1000}K` : denom}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      className={`denom-btn denom-btn-exact ${Number(cashTendered) === grandTotal ? 'denom-btn-active' : ''}`}
+                      onClick={() => setCashTendered(String(grandTotal))}
+                      title="Set exact amount"
+                    >
+                      Exact
+                    </button>
+                  </div>
+
                   <input
                     type="number"
-                    placeholder="Enter cash received..."
+                    placeholder="Or enter custom amount..."
                     value={cashTendered}
                     onChange={(e) => setCashTendered(e.target.value)}
                   />
@@ -608,11 +642,17 @@ export default function POS() {
                 </div>
               )}
 
+              {checkoutError && (
+                <div className="checkout-inline-error">
+                  ⚠️ {checkoutError}
+                </div>
+              )}
+
               <div className="modal-actions mt-4">
                 <button
                   type="button"
                   className="btn-secondary"
-                  onClick={() => setShowCheckoutModal(false)}
+                  onClick={() => { setShowCheckoutModal(false); setCheckoutError(''); }}
                 >
                   Cancel
                 </button>

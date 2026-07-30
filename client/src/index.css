@@ -1401,6 +1401,79 @@ input:checked + .slider:before {
   font-weight: 800;
 }
 
+.checkout-inline-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-6px); }
+  75%       { transform: translateX(6px); }
+}
+
+/* ─── Cash Denomination Quick-Select ─────────────────────────── */
+.cash-denominations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.denom-btn {
+  flex: 1 1 calc(16.6% - 0.4rem);
+  min-width: 52px;
+  padding: 0.45rem 0.3rem;
+  border: 1px solid rgba(234,179,8,0.35);
+  border-radius: var(--radius-sm);
+  background: rgba(234,179,8,0.08);
+  color: #fbbf24;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  text-align: center;
+}
+
+.denom-btn:hover {
+  background: rgba(234,179,8,0.2);
+  border-color: rgba(234,179,8,0.7);
+  transform: translateY(-1px);
+}
+
+.denom-btn-active {
+  background: rgba(234,179,8,0.3) !important;
+  border-color: #eab308 !important;
+  color: #fff !important;
+}
+
+.denom-btn-exact {
+  border-color: rgba(16,185,129,0.4);
+  background: rgba(16,185,129,0.08);
+  color: #34d399;
+}
+
+.denom-btn-exact:hover {
+  background: rgba(16,185,129,0.2);
+  border-color: rgba(16,185,129,0.7);
+}
+
+.denom-btn-exact.denom-btn-active {
+  background: rgba(16,185,129,0.3) !important;
+  border-color: #10b981 !important;
+  color: #fff !important;
+}
+
 /* ─── Thermal Receipt Styling & Print CSS ────────────────────────── */
 .receipt-container {
   background: #ffffff;
