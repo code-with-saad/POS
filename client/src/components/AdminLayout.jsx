@@ -1,8 +1,10 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useSettings } from '../context/SettingsContext.jsx';
 
 export default function AdminLayout() {
   const { user, logout } = useAuth();
+  const { settings } = useSettings();
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -28,7 +30,7 @@ export default function AdminLayout() {
         <div className="sidebar-brand">
           <span className="brand-icon">☕</span>
           <div>
-            <h1 className="brand-name">CafePOS</h1>
+            <h1 className="brand-name">{settings?.restaurantName || 'CafePOS'}</h1>
             <span className="brand-badge">ADMIN PANEL</span>
           </div>
         </div>

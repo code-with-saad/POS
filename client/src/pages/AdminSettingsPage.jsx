@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { getSettings, updateSetting } from '../api/settings';
+import { useSettings } from '../context/SettingsContext';
 
 const FIELDS = [
   {
@@ -49,6 +50,7 @@ const FIELDS = [
 const GROUPS = [...new Set(FIELDS.map((f) => f.group))];
 
 export default function AdminSettingsPage() {
+  const { updateSettingsContext } = useSettings();
   const [settings, setSettings] = useState({});
   const [original, setOriginal] = useState({});
   const [loading, setLoading]   = useState(true);
@@ -105,6 +107,7 @@ export default function AdminSettingsPage() {
         payload[key] = type === 'number' ? Number(settings[key]) : settings[key];
       });
       await updateSetting(payload);
+      updateSettingsContext(payload);
       setOriginal(settings);
       showToast('success', 'Settings saved successfully!');
     } catch (err) {

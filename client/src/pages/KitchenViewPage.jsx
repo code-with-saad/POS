@@ -1,13 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../api/client.js';
 
 export default function KitchenViewPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
+
+  // Determine back destination and label
+  const backState = location.state?.from;
+  const backPath = backState?.path || '/pos';
+  const backLabel = backState?.label ? `Return to ${backState.label}` : 'Return to POS';
 
   useEffect(() => {
     fetchActiveOrders();
@@ -72,7 +79,7 @@ export default function KitchenViewPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 flex-wrap">
           <label className="flex items-center gap-2 text-xs text-zinc-300 cursor-pointer">
             <input
               type="checkbox"
@@ -91,8 +98,12 @@ export default function KitchenViewPage() {
             🔄 Refresh
           </button>
 
-          <Link to="/pos" className="btn-primary text-xs">
-            ⬅️ Return to POS
+          <button className="btn-secondary text-xs" onClick={() => navigate(backPath)}>
+            ⬅️ {backLabel}
+          </button>
+
+          <Link to="/admin" className="btn-primary text-xs">
+            📊 Admin Dashboard
           </Link>
         </div>
       </header>

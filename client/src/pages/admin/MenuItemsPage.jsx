@@ -8,6 +8,8 @@ export default function MenuItemsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
   // Filters
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -30,6 +32,14 @@ export default function MenuItemsPage() {
     fetchInitialData();
   }, []);
 
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(() => {
+      fetchItems(true);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [autoRefresh, selectedCategory]);
+
   async function fetchInitialData() {
     try {
       setLoading(true);
@@ -39,6 +49,7 @@ export default function MenuItemsPage() {
       ]);
       setCategories(catsData);
       setItems(itemsData);
+      setLastRefreshed(new Date());
       setError('');
     } catch (err) {
       setError(err.message || 'Failed to load menu data');
@@ -47,14 +58,15 @@ export default function MenuItemsPage() {
     }
   }
 
-  async function fetchItems() {
+  async function fetchItems(silent = false) {
     try {
       const data = await api.get(
         selectedCategory ? `/menu-items?category=${selectedCategory}` : '/menu-items'
       );
       setItems(data);
+      setLastRefreshed(new Date());
     } catch (err) {
-      setError(err.message || 'Failed to load items');
+      if (!silent) setError(err.message || 'Failed to load items');
     }
   }
 
@@ -145,9 +157,26 @@ export default function MenuItemsPage() {
           <h1 className="page-title">Menu Items Management</h1>
           <p className="page-subtitle">Manage products, pricing, and availability</p>
         </div>
-        <button className="btn-primary" onClick={handleOpenAddModal}>
-          + Add Menu Item
-        </button>
+        <div className="flex items-center gap-3 flex-wrap">
+          <label className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={autoRefresh}
+              onChange={(e) => setAutoRefresh(e.target.checked)}
+              className="accent-amber-500 w-4 h-4"
+            />
+            Auto-refresh (10s)
+          </label>
+          <span className="text-xs text-zinc-500 font-mono">
+            Updated {lastRefreshed.toLocaleTimeString()}
+          </span>
+          <button className="btn-secondary text-xs" onClick={() => fetchItems()}>
+            🔄 Refresh
+          </button>
+          <button className="btn-primary" onClick={handleOpenAddModal}>
+            + Add Menu Item
+          </button>
+        </div>
       </header>
 
       {error && <div className="alert alert-error">{error}</div>}

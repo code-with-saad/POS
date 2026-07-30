@@ -6,6 +6,8 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -17,16 +19,25 @@ export default function CategoriesPage() {
     fetchCategories();
   }, []);
 
-  async function fetchCategories() {
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(() => {
+      fetchCategories(true);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [autoRefresh]);
+
+  async function fetchCategories(silent = false) {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const data = await api.get('/categories');
       setCategories(data);
+      setLastRefreshed(new Date());
       setError('');
     } catch (err) {
       setError(err.message || 'Failed to load categories');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }
 
@@ -85,9 +96,26 @@ export default function CategoriesPage() {
           <h1 className="page-title">Category Management</h1>
           <p className="page-subtitle">Organize menu items into distinct categories</p>
         </div>
-        <button className="btn-primary" onClick={handleOpenAddModal}>
-          + Add Category
-        </button>
+        <div className="flex items-center gap-3 flex-wrap">
+          <label className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={autoRefresh}
+              onChange={(e) => setAutoRefresh(e.target.checked)}
+              className="accent-amber-500 w-4 h-4"
+            />
+            Auto-refresh (10s)
+          </label>
+          <span className="text-xs text-zinc-500 font-mono">
+            Updated {lastRefreshed.toLocaleTimeString()}
+          </span>
+          <button className="btn-secondary text-xs" onClick={() => fetchCategories()}>
+            🔄 Refresh
+          </button>
+          <button className="btn-primary" onClick={handleOpenAddModal}>
+            + Add Category
+          </button>
+        </div>
       </header>
 
       {error && <div className="alert alert-error">{error}</div>}

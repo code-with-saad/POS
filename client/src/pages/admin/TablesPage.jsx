@@ -6,6 +6,8 @@ export default function TablesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
   // Filters
   const [selectedSection, setSelectedSection] = useState('');
@@ -25,16 +27,25 @@ export default function TablesPage() {
     fetchTables();
   }, []);
 
-  async function fetchTables() {
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(() => {
+      fetchTables(true);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [autoRefresh]);
+
+  async function fetchTables(silent = false) {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const data = await api.get('/tables');
       setTables(data);
+      setLastRefreshed(new Date());
       setError('');
     } catch (err) {
       setError(err.message || 'Failed to load tables');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }
 
@@ -119,9 +130,26 @@ export default function TablesPage() {
           <h1 className="page-title">Table Management</h1>
           <p className="page-subtitle">Configure dining layout, sections, and track table availability</p>
         </div>
-        <button className="btn-primary" onClick={handleOpenAddModal}>
-          + Add Table
-        </button>
+        <div className="flex items-center gap-3 flex-wrap">
+          <label className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={autoRefresh}
+              onChange={(e) => setAutoRefresh(e.target.checked)}
+              className="accent-amber-500 w-4 h-4"
+            />
+            Auto-refresh (10s)
+          </label>
+          <span className="text-xs text-zinc-500 font-mono">
+            Updated {lastRefreshed.toLocaleTimeString()}
+          </span>
+          <button className="btn-secondary text-xs" onClick={() => fetchTables()}>
+            🔄 Refresh
+          </button>
+          <button className="btn-primary" onClick={handleOpenAddModal}>
+            + Add Table
+          </button>
+        </div>
       </header>
 
       {error && <div className="alert alert-error">{error}</div>}
