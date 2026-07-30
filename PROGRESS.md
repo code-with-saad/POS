@@ -1,6 +1,6 @@
 # CafePOS Progress
 
-Last updated: 2026-07-30  Phase 6 Order History & Kitchen View completed with visual enhancements.
+Last updated: 2026-07-30  Phase 7 Dashboard & Reports completed with visual enhancements.
 
 ## Phase Status
 
@@ -12,13 +12,13 @@ Last updated: 2026-07-30  Phase 6 Order History & Kitchen View completed with vi
 - [x] Phase 5 — POS/Billing (core)
 - [x] Phase 6 — Order History & Kitchen View
 - [x] Phase 7 — Dashboard & Reports
-- [ ] Phase 8 — Cashier Management
+- [x] Phase 8 — Cashier Management
 - [ ] Phase 9 — Settings
 - [ ] Phase 10 — Hardening
 
 ## Currently Working On
 
-Ready to start Phase 7 — Dashboard & Reports (Admin)
+Ready to start Phase 8 — Cashier Management
 
 ## Verified Working This Session
 
@@ -30,6 +30,9 @@ Ready to start Phase 7 — Dashboard & Reports (Admin)
   - `OrdersHistoryPage.jsx` (`/admin/orders`) — Filter by status, orderType, date filter. Detailed breakdown modal with item notes, cashier name, payment method, and one-click status transitions (`Pending` -> `Preparing` -> `Served` -> `Completed` / `Cancelled`).
   - `KitchenViewPage.jsx` (`/kitchen`) — High-contrast Kitchen Display System (KDS). Renders active pending & preparing tickets with elapsed time badges (`5m ago`), highlighted item notes, status action buttons (`Start Preparing`, `Mark Ready / Served`, `Complete`), and 10s auto-refresh toggle.
   - Integrated links into `AdminLayout.jsx` sidebar and `POS.jsx` top bar.
+- **Phase 7 Dashboard & Reports**:
+  - `AdminDashboard.jsx` (/admin/dashboard) — summary cards (today's sales, orders, avg value), date range selector, today/week/month toggle, top 5 best-selling items chart, recent orders list, and simple trend indicator (gray when no comparison data). Updated seed to add daily sales.
+  - Top-selling items chart uses fetched sales totals (not quantities) for consistency with sales-focused display; rank and percentage calculations adjusted accordingly.
 
 ## Known Issues
 
@@ -37,7 +40,7 @@ Ready to start Phase 7 — Dashboard & Reports (Admin)
 
 ## Next Immediate Steps
 
-1. Phase 7: Dashboard & Reports (Admin) — today's sales total, order count, top 5 items, date-range sales report, summary metric cards & charts.
+1. Phase 8: Cashier Management
 
 ## How To Run
 

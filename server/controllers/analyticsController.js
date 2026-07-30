@@ -26,9 +26,9 @@ export async function getDashboardAnalytics(req, res, next) {
         {
           $group: {
             _id: null,
-            totalRevenue: { $sum: '$grandTotal' },
+            totalRevenue: { $sum: '$total' },
             totalOrders: { $sum: 1 },
-            avgOrderValue: { $avg: '$grandTotal' },
+            avgOrderValue: { $avg: '$total' },
           },
         },
       ]),
@@ -44,7 +44,7 @@ export async function getDashboardAnalytics(req, res, next) {
         {
           $group: {
             _id: null,
-            todayRevenue: { $sum: '$grandTotal' },
+            todayRevenue: { $sum: '$total' },
             todayOrders: { $sum: 1 },
           },
         },

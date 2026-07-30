@@ -15,7 +15,8 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
       const res = await api.get('/analytics/dashboard');
-      setData(res.data);
+      // api.client returns response body directly
+      setData(res.data || res);
       setError('');
     } catch (err) {
       setError(err.message || 'Failed to load dashboard analytics');
@@ -233,7 +234,7 @@ export default function AdminDashboard() {
                     </span>
                   </div>
                   <div className="order-amount">
-                    Rs. {order.grandTotal.toLocaleString()}
+                    Rs. {(order.total || order.grandTotal || 0).toLocaleString()}
                   </div>
                 </div>
               ))}
