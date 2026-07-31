@@ -62,14 +62,33 @@ app.use((req, res) => {
 
 app.use(errorHandler);
 
-async function start() {
-  await connectDB();
-  app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
+// Connect to DB then start (local dev)
+// For Vercel serverless, we export the app and connect lazily
+let isConnected = false;
+
+async function connectOnce() {
+  if (!isConnected) {
+    await connectDB();
+    isConnected = true;
+  }
+}
+
+// Wrap app to ensure DB is connected on every serverless invocation
+const handler = async (req, res) => {
+  await connectOnce();
+  return app(req, res);
+};
+
+// Local dev: start express server normally
+if (process.env.NODE_ENV !== 'production') {
+  connectOnce().then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server listening on port ${PORT}`);
+    });
+  }).catch((err) => {
+    console.error('Failed to start server:', err);
+    process.exit(1);
   });
 }
 
-start().catch((err) => {
-  console.error('Failed to start server:', err);
-  process.exit(1);
-});
+export default handler;
