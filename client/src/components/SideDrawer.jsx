@@ -36,13 +36,15 @@ export default function SideDrawer({ isOpen, onClose, currentPage = 'Terminal' }
   }
 
   const navItems = [
-    { path: '/pos',     label: 'POS Terminal',    icon: '🖥️' },
-    { path: '/kitchen', label: 'Kitchen View',     icon: '👨‍🍳' },
-    { path: '/admin',   label: 'Admin Dashboard',  icon: '📊', adminOnly: true },
-    { path: '/admin/orders', label: 'Order History', icon: '🧾', adminOnly: true },
+    { path: '/admin',       label: 'Dashboard',       icon: '📊', adminOnly: true },
+    { path: '/pos',         label: 'POS Terminal',    icon: '🖥️' },
+    { path: '/admin/tables', label: 'Tables',         icon: '🪑', adminOnly: true },
+    { path: '/kitchen',     label: 'Kitchen View',     icon: '👨‍🍳' },
+    { path: '/admin/orders', label: 'Order History',   icon: '🧾', adminOnly: true },
+    { path: '/admin/categories', label: 'Categories', icon: '📁', adminOnly: true },
     { path: '/admin/menu-items', label: 'Menu Items', icon: '🍔', adminOnly: true },
-    { path: '/admin/tables', label: 'Tables',       icon: '🪑', adminOnly: true },
-    { path: '/admin/settings', label: 'Settings',   icon: '⚙️', adminOnly: true },
+    { path: '/admin/users', label: 'Staff & Cashiers', icon: '👥', adminOnly: true },
+    { path: '/admin/settings', label: 'Settings',     icon: '⚙️', adminOnly: true },
   ];
 
   const visibleItems = navItems.filter((item) => !item.adminOnly || user?.role === 'admin');

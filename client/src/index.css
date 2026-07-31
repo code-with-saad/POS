@@ -1497,6 +1497,34 @@ input:checked + .slider:before {
   color: #fff !important;
 }
 
+.denom-btn-undo {
+  border-color: rgba(59,130,246,0.4);
+  background: rgba(59,130,246,0.08);
+  color: #60a5fa;
+}
+
+.denom-btn-undo:hover:not(:disabled) {
+  background: rgba(59,130,246,0.2);
+  border-color: rgba(59,130,246,0.7);
+}
+
+.denom-btn-clear {
+  border-color: rgba(239,68,68,0.4);
+  background: rgba(239,68,68,0.08);
+  color: #fca5a5;
+}
+
+.denom-btn-clear:hover:not(:disabled) {
+  background: rgba(239,68,68,0.2);
+  border-color: rgba(239,68,68,0.7);
+}
+
+.denom-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
 /* ─── Thermal Receipt Styling & Print CSS ────────────────────────── */
 .receipt-container {
   background: #ffffff;
@@ -2928,6 +2956,102 @@ input:checked + .slider:before {
   background: #f1f5f9 !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
+}
+
+/* ─── Responsive Media Queries ─────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .pos-main-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .pos-cart-section {
+    max-height: 550px;
+    border-left: none;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .admin-sidebar {
+    position: fixed;
+    left: -280px;
+    top: 0;
+    bottom: 0;
+    z-index: 50;
+    transition: left 0.3s ease;
+  }
+
+  .admin-sidebar.sidebar-open {
+    left: 0;
+  }
+
+  .admin-main {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .pos-header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    height: auto;
+  }
+
+  .order-type-tabs {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pos-header-right {
+    gap: 0.5rem;
+  }
+
+  .btn-admin-link {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.6rem;
+  }
+
+  .menu-cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .modal-card {
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .cash-denominations {
+    gap: 0.3rem;
+  }
+
+  .denom-btn {
+    min-width: 44px;
+    padding: 0.4rem 0.2rem;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pos-title {
+    font-size: 1.1rem;
+  }
+
+  .menu-cards-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cart-item-row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .cart-item-qty-controls {
+    margin-left: auto;
+  }
 }
 
 

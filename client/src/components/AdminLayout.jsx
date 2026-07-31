@@ -16,13 +16,13 @@ export default function AdminLayout() {
 
   const navItems = [
     { path: '/admin', label: 'Dashboard', icon: '📊', end: true },
+    { path: '/pos', label: 'POS Terminal', icon: '🖥️' },
+    { path: '/admin/tables', label: 'Tables', icon: '🪑' },
+    { path: '/kitchen', label: 'Kitchen View', icon: '👨‍🍳' },
+    { path: '/admin/orders', label: 'Order History', icon: '🧾' },
     { path: '/admin/categories', label: 'Categories', icon: '📁' },
     { path: '/admin/menu-items', label: 'Menu Items', icon: '🍔' },
-    { path: '/admin/tables', label: 'Tables', icon: '🪑' },
-    { path: '/admin/orders', label: 'Order History', icon: '🧾' },
     { path: '/admin/users', label: 'Staff & Cashiers', icon: '👥' },
-    { path: '/pos', label: 'POS Terminal', icon: '🖥️' },
-    { path: '/kitchen', label: 'Kitchen View', icon: '👨‍🍳' },
     { path: '/admin/settings', label: 'Settings', icon: '⚙️' },
   ];
 

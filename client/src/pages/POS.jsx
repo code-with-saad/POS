@@ -38,6 +38,111 @@ export default function POS() {
   const [completedOrder, setCompletedOrder] = useState(null);
   const [checkoutError, setCheckoutError] = useState('');
 
+  // Filtered Menu Items
+  const filteredItems = useMemo(() => {
+    return menuItems.filter((item) => {
+      const matchesCategory =
+        !selectedCategory ||
+        (item.category?._id || item.category) === selectedCategory;
+      const matchesSearch =
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (item.description &&
+          item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchesCategory && matchesSearch;
+    });
+  }, [menuItems, selectedCategory, searchQuery]);
+
+  // Cart Computations
+  const subtotal = useMemo(() => {
+    return cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  }, [cart]);
+
+  const taxRatePercent = settings?.taxRatePercent || 16;
+  const discountAmount = Math.max(0, Number(discount) || 0);
+  const afterDiscount = Math.max(0, subtotal - discountAmount);
+  const tax = Math.round(afterDiscount * (taxRatePercent / 100));
+  const grandTotal = Math.round(afterDiscount + tax);
+
+  const changeDue = useMemo(() => {
+    const tendered = Number(cashTendered) || 0;
+    return Math.max(0, tendered - grandTotal);
+  }, [cashTendered, grandTotal]);
+
+  // Selected cart item index for keyboard shortcut navigation
+  const [selectedCartIndex, setSelectedCartIndex] = useState(0);
+
+  // Keep selectedCartIndex valid when cart length changes
+  useEffect(() => {
+    if (cart.length === 0) {
+      setSelectedCartIndex(0);
+    } else if (selectedCartIndex >= cart.length) {
+      setSelectedCartIndex(cart.length - 1);
+    }
+  }, [cart.length, selectedCartIndex]);
+
+  // History stack for cash tendered Undo
+  const [cashHistory, setCashHistory] = useState([]);
+
+  function pushCashTendered(newVal) {
+    setCashHistory((prev) => [...prev, cashTendered]);
+    setCashTendered(newVal);
+  }
+
+  function handleUndoCash() {
+    if (cashHistory.length === 0) return;
+    const previous = cashHistory[cashHistory.length - 1];
+    setCashHistory((prev) => prev.slice(0, -1));
+    setCashTendered(previous);
+  }
+
+  function handleClearCash() {
+    setCashHistory((prev) => [...prev, cashTendered]);
+    setCashTendered('');
+  }
+
+  // Global Keyboard Shortcuts
+  useEffect(() => {
+    function handleKeyDown(e) {
+      // Check if user is typing in an editable field or input/textarea/select
+      const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+      const isEditable = document.activeElement?.isContentEditable || activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select';
+      if (isEditable) return;
+
+      // Do NOT allow quantity adjustment via arrow keys if checkout modal or receipt modal is open
+      if (showCheckoutModal || showReceiptModal) {
+        if (e.key === 'Enter') {
+          if (showReceiptModal) return;
+          e.preventDefault();
+          if (showCheckoutModal) {
+            handleConfirmOrder();
+          }
+        }
+        return;
+      }
+
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        if (cart.length === 0) return;
+        e.preventDefault();
+
+        // Target currently selected cart item
+        const targetIndex = selectedCartIndex < cart.length ? selectedCartIndex : 0;
+        const targetItem = cart[targetIndex];
+        if (targetItem) {
+          const delta = e.key === 'ArrowUp' ? 1 : -1;
+          updateQuantity(targetItem.menuItem, delta);
+        }
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (cart.length > 0) {
+          setShowCheckoutModal(true);
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [cart, selectedCartIndex, showCheckoutModal, showReceiptModal, grandTotal, paymentMethod, cashTendered, orderType, selectedTable]);
+
   useEffect(() => {
     fetchPOSData();
   }, []);
@@ -70,35 +175,6 @@ export default function POS() {
     }
   }
 
-  // Filtered Menu Items
-  const filteredItems = useMemo(() => {
-    return menuItems.filter((item) => {
-      const matchesCategory =
-        !selectedCategory ||
-        (item.category?._id || item.category) === selectedCategory;
-      const matchesSearch =
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (item.description &&
-          item.description.toLowerCase().includes(searchQuery.toLowerCase()));
-      return matchesCategory && matchesSearch;
-    });
-  }, [menuItems, selectedCategory, searchQuery]);
-
-  // Cart Computations
-  const subtotal = useMemo(() => {
-    return cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  }, [cart]);
-
-  const taxRatePercent = settings?.taxRatePercent || 16;
-  const discountAmount = Math.max(0, Number(discount) || 0);
-  const afterDiscount = Math.max(0, subtotal - discountAmount);
-  const tax = Math.round(afterDiscount * (taxRatePercent / 100));
-  const grandTotal = Math.round(afterDiscount + tax);
-
-  const changeDue = useMemo(() => {
-    const tendered = Number(cashTendered) || 0;
-    return Math.max(0, tendered - grandTotal);
-  }, [cashTendered, grandTotal]);
 
   // Cart Operations
   function addToCart(menuItem) {
@@ -406,58 +482,77 @@ export default function POS() {
                 <span className="cart-empty-sub">Click items on the left to add to order</span>
               </div>
             ) : (
-              cart.map((item) => (
-                <div key={item.menuItem} className="cart-item-row">
-                  <ItemVisual
-                    imageUrl={item.imageUrl}
-                    itemName={item.name}
-                    categoryName={item.categoryName}
-                    className="cart-item-visual"
-                  />
-                  <div className="cart-item-info">
-                    <span className="cart-item-name">{item.name}</span>
-                    <span className="cart-item-unit-price">Rs. {item.price} each</span>
-
-                    {/* Per Item Note Input */}
-                    <input
-                      type="text"
-                      className="cart-item-notes-input"
-                      placeholder="Add note (e.g. extra foam)..."
-                      value={item.notes}
-                      onChange={(e) => updateNotes(item.menuItem, e.target.value)}
+              cart.map((item, index) => {
+                const isSelected = index === selectedCartIndex;
+                return (
+                  <div
+                    key={item.menuItem}
+                    className={`cart-item-row ${isSelected ? 'cart-item-selected' : ''}`}
+                    onClick={() => setSelectedCartIndex(index)}
+                    style={isSelected ? { outline: '2px solid #f59e0b', borderRadius: '8px' } : {}}
+                  >
+                    <ItemVisual
+                      imageUrl={item.imageUrl}
+                      itemName={item.name}
+                      categoryName={item.categoryName}
+                      className="cart-item-visual"
                     />
-                  </div>
+                    <div className="cart-item-info">
+                      <span className="cart-item-name">{item.name}</span>
+                      <span className="cart-item-unit-price">Rs. {item.price} each</span>
 
-                  {/* Quantity Controls */}
-                  <div className="cart-item-qty-controls">
-                    <button
-                      className="qty-btn"
-                      onClick={() => updateQuantity(item.menuItem, -1)}
-                    >
-                      -
-                    </button>
-                    <span className="qty-val">{item.quantity}</span>
-                    <button
-                      className="qty-btn"
-                      onClick={() => updateQuantity(item.menuItem, 1)}
-                    >
-                      +
-                    </button>
-                  </div>
+                      {/* Per Item Note Input */}
+                      <input
+                        type="text"
+                        className="cart-item-notes-input"
+                        placeholder="Add note (e.g. extra foam)..."
+                        value={item.notes}
+                        onChange={(e) => updateNotes(item.menuItem, e.target.value)}
+                      />
+                    </div>
 
-                  {/* Line Total & Delete */}
-                  <div className="cart-item-total">
-                    <span className="line-total-price">Rs. {item.price * item.quantity}</span>
-                    <button
-                      className="btn-remove-item"
-                      onClick={() => removeFromCart(item.menuItem)}
-                      title="Remove Item"
-                    >
-                      ✕
-                    </button>
+                    {/* Quantity Controls */}
+                    <div className="cart-item-qty-controls">
+                      <button
+                        className="qty-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedCartIndex(index);
+                          updateQuantity(item.menuItem, -1);
+                        }}
+                      >
+                        -
+                      </button>
+                      <span className="qty-val">{item.quantity}</span>
+                      <button
+                        className="qty-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedCartIndex(index);
+                          updateQuantity(item.menuItem, 1);
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    {/* Line Total & Delete */}
+                    <div className="cart-item-total">
+                      <span className="line-total-price">Rs. {item.price * item.quantity}</span>
+                      <button
+                        className="btn-remove-item"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeFromCart(item.menuItem);
+                        }}
+                        title="Remove Item"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
@@ -618,23 +713,44 @@ export default function POS() {
 
                   {/* Quick Denomination Buttons */}
                   <div className="cash-denominations">
-                    {[100, 200, 500, 1000, 5000].map((denom) => (
+                    {[50, 100, 500, 1000, 5000].map((denom) => (
                       <button
                         key={denom}
                         type="button"
-                        className={`denom-btn ${Number(cashTendered) === denom ? 'denom-btn-active' : ''}`}
-                        onClick={() => setCashTendered(String(denom))}
+                        className="denom-btn"
+                        onClick={() => {
+                          const current = Number(cashTendered) || 0;
+                          pushCashTendered(String(current + denom));
+                        }}
                       >
-                        {denom >= 1000 ? `${denom / 1000}K` : denom}
+                        +{denom >= 1000 ? `${denom / 1000}K` : denom}
                       </button>
                     ))}
                     <button
                       type="button"
                       className={`denom-btn denom-btn-exact ${Number(cashTendered) === grandTotal ? 'denom-btn-active' : ''}`}
-                      onClick={() => setCashTendered(String(grandTotal))}
+                      onClick={() => pushCashTendered(String(grandTotal))}
                       title="Set exact amount"
                     >
                       Exact
+                    </button>
+                    <button
+                      type="button"
+                      className="denom-btn denom-btn-undo"
+                      onClick={handleUndoCash}
+                      disabled={cashHistory.length === 0}
+                      title="Undo last cash entry"
+                    >
+                      ↩ Undo
+                    </button>
+                    <button
+                      type="button"
+                      className="denom-btn denom-btn-clear"
+                      onClick={handleClearCash}
+                      disabled={!cashTendered}
+                      title="Clear cash amount"
+                    >
+                      🗑️ Clear
                     </button>
                   </div>
 
