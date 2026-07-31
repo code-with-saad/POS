@@ -219,7 +219,7 @@ export default function KitchenViewPage() {
                                 </span>
                               )}
                             </div>
-                          // </div>
+                          </div>
                         );
                       });
                     })()}
