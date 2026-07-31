@@ -187,19 +187,44 @@ export default function KitchenViewPage() {
 
                   {/* Itemized Kitchen Lines */}
                   <div className="ticket-items">
-                    {order.items.map((item, idx) => (
-                      <div key={idx} className="ticket-item-row">
-                        <span className="ticket-qty">{item.quantity}x</span>
-                        <div className="flex-1">
-                          <span className="ticket-item-name">{item.name}</span>
-                          {item.notes && (
-                            <span className="ticket-item-note">
-                              ⚠️ Note: {item.notes}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                    {(() => {
+                      const maxRound = Math.max(...order.items.map((i) => i.round || 1));
+                      const hasMultipleRounds = maxRound > 1;
+
+                      return order.items.map((item, idx) => {
+                        const isLatestRound = hasMultipleRounds && (item.round || 1) === maxRound;
+                        return (
+                          <div
+                            key={idx}
+                            className={`ticket-item-row ${
+                              isLatestRound ? 'bg-amber-500/20 p-1.5 rounded border border-amber-500/40' : ''
+                            }`}
+                          >
+                            <span className="ticket-qty">{item.quantity}x</span>
+                            <div className="flex-1">
+                              <span className="ticket-item-name">
+                                {item.name}
+                                {item.variant && (
+                                  <span className="ml-1 text-xs px-1 py-0.5 rounded bg-zinc-800 text-amber-300 font-semibold">
+                                    {item.variant}
+                                  </span>
+                                )}
+                                {isLatestRound && (
+                                  <span className="ml-1.5 text-xs px-1.5 py-0.5 rounded bg-amber-500 text-black font-extrabold animate-pulse">
+                                    NEW ADDITION (R{item.round})
+                                  </span>
+                                )}
+                              </span>
+                              {item.notes && (
+                                <span className="ticket-item-note">
+                                  ⚠️ Note: {item.notes}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
                   </div>
 
                   {/* Ticket Action Footer */}

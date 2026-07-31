@@ -22,13 +22,6 @@ All phases 0 through 10 fully completed and hardened.
 
 ## Verified Working This Session
 
-- **Phase 10 — Hardening, Toast System & Spinners**:
-  - Global `<ToastProvider />` context + auto-dismissing `<ToastContainer />` installed at root.
-  - Replaced inline text error/success alerts across all Admin pages (`MenuItemsPage`, `CategoriesPage`, `TablesPage`, `OrdersHistoryPage`, `UsersPage`, `AdminDashboard`, `AdminSettingsPage`, and `KitchenViewPage`) with animated toast notifications (`showToast(type, msg)`).
-  - Added CSS animated `.page-spinner` loading overlays for clean initial loading states across all pages.
-  - Added `express-rate-limit` rate-limiter on backend auth route `POST /api/auth/login` (max 10 attempts / 15 mins per IP).
-  - Schema bug fix for `imageUrl` on `MenuItem` model — images now save and display cleanly.
-
 - **Visual Enhancement**:
   - `ItemVisual.jsx` component created: Renders `imageUrl` if provided, otherwise dynamically resolves smart fallback icons (e.g. ☕, 🥤, 🍔, 🥪, 🍕, 🍰, 🫖) based on item name and category.
   - Integrated into POS menu cards, POS cart thumbnails, and Admin Menu Item table rows.
@@ -46,10 +39,16 @@ All phases 0 through 10 fully completed and hardened.
     - Delete action implemented with confirmation modal and database removal. Resets code for reused codes.
     - Status toggle with immediate API update and confirmation.
   - Updated seed to add three cashier users and two active cashiers with codes CA001 and CA002.
--  **Phase 9 Settings**:
+- **Phase 9 Settings**:
   - `Settings` MongoDB model (`restaurantName`, `address`, `phone`, `taxRatePercent`, `receiptFooter`) with defaults.
   - `GET /api/settings` — authenticated (any role). `PUT /api/settings` — admin only (role-guarded).
   - `AdminSettingsPage.jsx` (`/admin/settings`) — grouped form cards (General / Billing / Receipts), unsaved-changes detection banner, discard button, input validation (tax 0–100), toast notifications on success/error, fully responsive.
+- **Phase 10 — Hardening, Toast System & Spinners**:
+  - Global `<ToastProvider />` context + auto-dismissing `<ToastContainer />` installed at root.
+  - Replaced inline text error/success alerts across all Admin pages (`MenuItemsPage`, `CategoriesPage`, `TablesPage`, `OrdersHistoryPage`, `UsersPage`, `AdminDashboard`, `AdminSettingsPage`, and `KitchenViewPage`) with animated toast notifications (`showToast(type, msg)`).
+  - Added CSS animated `.page-spinner` loading overlays for clean initial loading states across all pages.
+  - Added `express-rate-limit` rate-limiter on backend auth route `POST /api/auth/login` (max 10 attempts / 15 mins per IP).
+  - Schema bug fix for `imageUrl` on `MenuItem` model — images now save and display cleanly.
 
 ## Known Issues
 
@@ -57,7 +56,7 @@ All phases 0 through 10 fully completed and hardened.
 
 ## Next Immediate Steps
 
-1. Phase 10 — Hardening (final polish, error handling, security audit)
+1. -
 
 ## How To Run
 

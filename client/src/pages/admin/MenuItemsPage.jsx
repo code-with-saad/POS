@@ -51,9 +51,8 @@ export default function MenuItemsPage() {
       setCategories(catsData);
       setItems(itemsData);
       setLastRefreshed(new Date());
-      setError('');
     } catch (err) {
-      setError(err.message || 'Failed to load menu data');
+      showToast('error', err.message || 'Failed to load menu data');
     } finally {
       setLoading(false);
     }
@@ -61,13 +60,11 @@ export default function MenuItemsPage() {
 
   async function fetchItems(silent = false) {
     try {
-      const data = await api.get(
-        selectedCategory ? `/menu-items?category=${selectedCategory}` : '/menu-items'
-      );
+      const data = await api.get('/menu-items');
       setItems(data);
       setLastRefreshed(new Date());
     } catch (err) {
-      if (!silent) setError(err.message || 'Failed to load items');
+      if (!silent) showToast('error', err.message || 'Failed to load items');
     }
   }
 
@@ -179,10 +176,14 @@ export default function MenuItemsPage() {
     }
   }
 
-  const filteredItems = items.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredItems = items.filter((item) => {
+    const itemCatId = item.category?._id || item.category;
+    const matchesCat = !selectedCategory || itemCatId === selectedCategory;
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesCat && matchesSearch;
+  });
 
   return (
     <div className="page-container">

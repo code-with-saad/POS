@@ -29,6 +29,14 @@ const orderItemSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    round: {
+      type: Number,
+      default: 1,
+    },
+    sentAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { _id: false }
 );

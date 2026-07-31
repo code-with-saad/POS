@@ -19,10 +19,28 @@ async function generateOrderNumber() {
   return `${dateStr}-${seq}`;
 }
 
-/** POST /api/orders — Create a new order */
+/** GET /api/orders/open-by-table/:tableId — Find open order for table */
+export async function getOpenOrderByTable(req, res, next) {
+  try {
+    const order = await Order.findOne({
+      table: req.params.tableId,
+      status: { $in: ['pending', 'preparing', 'served'] },
+    }).populate('cashier', 'name username');
+
+    if (!order) {
+      return res.json({ success: true, data: null });
+    }
+
+    res.json({ success: true, data: order });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/** POST /api/orders — Create a new order or send new round of items */
 export async function createOrder(req, res, next) {
   try {
-    const { orderType, tableId, items, discount = 0, paymentMethod = 'cash' } = req.body;
+    const { orderType, tableId, items, discount = 0, paymentMethod = 'cash', isSendToKitchen = false } = req.body;
 
     if (!orderType || !['dine-in', 'takeaway', 'delivery'].includes(orderType)) {
       return res.status(400).json({ success: false, message: 'Valid order type is required' });
@@ -52,9 +70,25 @@ export async function createOrder(req, res, next) {
     }
     const taxRatePercent = settings.taxRatePercent || 16;
 
-    // Snapshot item details & compute subtotal
-    const processedItems = [];
-    let subtotal = 0;
+    // Check if there is already an existing open order for this table
+    let existingOrder = null;
+    if (orderType === 'dine-in' && tableId) {
+      existingOrder = await Order.findOne({
+        table: tableId,
+        status: { $in: ['pending', 'preparing', 'served'] },
+      });
+    }
+
+    // Determine target round number
+    let currentRound = 1;
+    if (existingOrder && Array.isArray(existingOrder.items) && existingOrder.items.length > 0) {
+      const maxRound = Math.max(...existingOrder.items.map((i) => i.round || 1));
+      currentRound = maxRound + 1;
+    }
+
+    // Snapshot new item details
+    const newProcessedItems = [];
+    let addedSubtotal = 0;
 
     for (const item of items) {
       const menuItem = await MenuItem.findById(item.menuItem);
@@ -66,7 +100,7 @@ export async function createOrder(req, res, next) {
       }
 
       const qty = Math.max(1, Number(item.quantity) || 1);
-      
+
       let linePrice = menuItem.price;
       let variantName = '';
       if (item.variant) {
@@ -80,47 +114,86 @@ export async function createOrder(req, res, next) {
       }
 
       const lineSubtotal = linePrice * qty;
-      subtotal += lineSubtotal;
+      addedSubtotal += lineSubtotal;
 
-      processedItems.push({
+      newProcessedItems.push({
         menuItem: menuItem._id,
         name: menuItem.name,
         variant: variantName || (item.variant ? String(item.variant) : ''),
         price: linePrice,
         quantity: qty,
         notes: item.notes ? String(item.notes).trim() : '',
+        round: currentRound,
+        sentAt: new Date(),
       });
     }
 
-    // Compute Totals
-    const discountAmount = Math.max(0, Number(discount) || 0);
-    const afterDiscount = Math.max(0, subtotal - discountAmount);
-    const tax = Math.round(afterDiscount * (taxRatePercent / 100));
-    const total = Math.round(afterDiscount + tax);
+    let finalOrder;
 
-    const orderNumber = await generateOrderNumber();
+    if (existingOrder) {
+      // Append new items to existing open order
+      existingOrder.items.push(...newProcessedItems);
+      
+      // Recompute subtotal, tax, total
+      let allSubtotal = existingOrder.items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+      const discountAmount = Math.max(0, Number(discount) || existingOrder.discount || 0);
+      const afterDiscount = Math.max(0, allSubtotal - discountAmount);
+      const tax = Math.round(afterDiscount * (taxRatePercent / 100));
+      const total = Math.round(afterDiscount + tax);
 
-    const order = await Order.create({
-      orderNumber,
-      orderType,
-      table: orderType === 'dine-in' ? tableId : undefined,
-      items: processedItems,
-      subtotal,
-      discount: discountAmount,
-      tax,
-      total,
-      paymentMethod,
-      status: 'pending',
-      cashier: req.user._id,
-    });
+      existingOrder.subtotal = allSubtotal;
+      existingOrder.discount = discountAmount;
+      existingOrder.tax = tax;
+      existingOrder.total = total;
+      if (paymentMethod) existingOrder.paymentMethod = paymentMethod;
 
-    // Mark table occupied if dine-in
-    if (orderType === 'dine-in' && table) {
-      table.status = 'occupied';
-      await table.save();
+      // If completing (not just sending to kitchen), set status completed
+      if (!isSendToKitchen) {
+        existingOrder.status = 'completed';
+        existingOrder.completedAt = new Date();
+        if (table) {
+          table.status = 'available';
+          await table.save();
+        }
+      } else {
+        existingOrder.status = 'pending'; // Reset status to pending so kitchen sees new items
+      }
+
+      await existingOrder.save();
+      finalOrder = existingOrder;
+    } else {
+      // Create fresh new order
+      const discountAmount = Math.max(0, Number(discount) || 0);
+      const afterDiscount = Math.max(0, addedSubtotal - discountAmount);
+      const tax = Math.round(afterDiscount * (taxRatePercent / 100));
+      const total = Math.round(afterDiscount + tax);
+
+      const orderNumber = await generateOrderNumber();
+      const initialStatus = isSendToKitchen ? 'pending' : 'completed';
+
+      finalOrder = await Order.create({
+        orderNumber,
+        orderType,
+        table: orderType === 'dine-in' ? tableId : undefined,
+        items: newProcessedItems,
+        subtotal: addedSubtotal,
+        discount: discountAmount,
+        tax,
+        total,
+        paymentMethod,
+        status: initialStatus,
+        completedAt: initialStatus === 'completed' ? new Date() : undefined,
+        cashier: req.user._id,
+      });
+
+      // Mark table occupied if dine-in and not yet completed
+      if (orderType === 'dine-in' && table) {
+        table.status = initialStatus === 'completed' ? 'available' : 'occupied';
+        await table.save();
+      }
     }
 
-    const populated = await order.populate([
+    const populated = await finalOrder.populate([
       { path: 'table', select: 'name section' },
       { path: 'cashier', select: 'name username' },
     ]);

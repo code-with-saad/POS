@@ -3,6 +3,7 @@ import {
   createOrder,
   getOrders,
   getOrderById,
+  getOpenOrderByTable,
   updateOrderStatus,
 } from '../controllers/orderController.js';
 import { protect } from '../middleware/auth.js';
@@ -12,6 +13,7 @@ const router = Router();
 router.use(protect); // All order routes require auth
 
 router.get('/', getOrders);
+router.get('/open-by-table/:tableId', getOpenOrderByTable);
 router.post('/', createOrder);
 router.get('/:id', getOrderById);
 router.patch('/:id/status', updateOrderStatus);

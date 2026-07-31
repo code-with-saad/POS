@@ -21,6 +21,7 @@ export default function POS() {
   // POS State
   const [orderType, setOrderType] = useState('dine-in'); // dine-in | takeaway | delivery
   const [selectedTable, setSelectedTable] = useState(null);
+  const [activeOrder, setActiveOrder] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState([]);
@@ -162,16 +163,46 @@ export default function POS() {
       setTables(tablesData);
       setSettings(settingsData);
 
-      // Auto-select first available table for dine-in if none selected
-      const availableTable = tablesData.find((t) => t.status === 'available');
-      if (availableTable) {
-        setSelectedTable(availableTable);
+      // Auto-select first table if none selected
+      const defaultTable = tablesData[0];
+      if (defaultTable) {
+        handleSelectTable(defaultTable);
       }
       setError('');
     } catch (err) {
       setError(err.message || 'Failed to load POS data');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleSelectTable(t) {
+    setSelectedTable(t);
+    try {
+      const openOrd = await api.get(`/orders/open-by-table/${t._id}`);
+      if (openOrd) {
+        setActiveOrder(openOrd);
+        // Pre-populate cart with existing items snapshot
+        const existingCartItems = openOrd.items.map((i) => ({
+          cartKey: `${i.menuItem}_${i.variant || 'base'}_r${i.round}`,
+          menuItem: i.menuItem,
+          name: i.name,
+          variant: i.variant || '',
+          price: i.price,
+          quantity: i.quantity,
+          notes: i.notes || '',
+          round: i.round,
+          isSent: true,
+        }));
+        setCart(existingCartItems);
+        setDiscount(openOrd.discount || 0);
+      } else {
+        setActiveOrder(null);
+        setCart([]);
+        setDiscount(0);
+      }
+    } catch (err) {
+      setActiveOrder(null);
     }
   }
 
@@ -254,6 +285,55 @@ export default function POS() {
     setCart([]);
     setDiscount(0);
     setCashTendered('');
+    setActiveOrder(null);
+  }
+
+  async function handleSendToKitchen() {
+    const unsentItems = cart.filter((ci) => !ci.isSent);
+    if (unsentItems.length === 0) return;
+    if (orderType === 'dine-in' && !selectedTable) {
+      setError('Please select a dining table');
+      setShowTableModal(true);
+      return;
+    }
+
+    setSubmitting(true);
+    setError('');
+
+    try {
+      const orderPayload = {
+        orderType,
+        tableId: orderType === 'dine-in' ? selectedTable?._id : undefined,
+        items: unsentItems.map((ci) => ({
+          menuItem: ci.menuItem,
+          variant: ci.variant || undefined,
+          price: ci.price,
+          quantity: ci.quantity,
+          notes: ci.notes,
+        })),
+        discount: discountAmount,
+        isSendToKitchen: true,
+      };
+
+      const updatedOrd = await api.post('/orders', orderPayload);
+      setActiveOrder(updatedOrd);
+
+      // Refresh table status so it shows occupied
+      const updatedTables = await api.get('/tables');
+      setTables(updatedTables);
+      if (selectedTable) {
+        const cur = updatedTables.find((t) => t._id === selectedTable._id);
+        if (cur) setSelectedTable(cur);
+      }
+
+      // Refresh cart to show all items as sent
+      handleSelectTable(selectedTable);
+      setError('');
+    } catch (err) {
+      setError(err.message || 'Failed to send order to kitchen');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   // Handle Checkout Submission
@@ -279,10 +359,18 @@ export default function POS() {
     setError('');
 
     try {
+      const unsentItems = cart.filter((ci) => !ci.isSent);
+      
       const orderPayload = {
         orderType,
         tableId: orderType === 'dine-in' ? selectedTable?._id : undefined,
-        items: cart.map((ci) => ({
+        items: unsentItems.length > 0 ? unsentItems.map((ci) => ({
+          menuItem: ci.menuItem,
+          variant: ci.variant || undefined,
+          price: ci.price,
+          quantity: ci.quantity,
+          notes: ci.notes,
+        })) : cart.map((ci) => ({
           menuItem: ci.menuItem,
           variant: ci.variant || undefined,
           price: ci.price,
@@ -291,6 +379,7 @@ export default function POS() {
         })),
         discount: discountAmount,
         paymentMethod,
+        isSendToKitchen: false,
       };
 
       const orderData = await api.post('/orders', orderPayload);
@@ -298,13 +387,15 @@ export default function POS() {
       setShowCheckoutModal(false);
       setShowReceiptModal(true);
 
-      // Refresh tables list so occupied table reflects
+      // Refresh tables list so freed table reflects
       const updatedTables = await api.get('/tables');
       setTables(updatedTables);
       const nextAvailable = updatedTables.find((t) => t.status === 'available');
-      setSelectedTable(nextAvailable || null);
-
-      clearCart();
+      if (nextAvailable) {
+        handleSelectTable(nextAvailable);
+      } else {
+        clearCart();
+      }
     } catch (err) {
       setError(err.message || 'Failed to complete order');
     } finally {
@@ -531,6 +622,15 @@ export default function POS() {
                             {item.variant}
                           </span>
                         )}
+                        {item.isSent ? (
+                          <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold">
+                            Sent (R{item.round || 1})
+                          </span>
+                        ) : (
+                          <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-semibold">
+                            New
+                          </span>
+                        )}
                       </span>
                       <span className="cart-item-unit-price">Rs. {item.price} each</span>
 
@@ -618,21 +718,30 @@ export default function POS() {
             </div>
 
             {/* Cart Action Buttons */}
-            <div className="cart-actions">
+            <div className="cart-actions flex-col gap-2">
               <button
-                className="btn-secondary flex-1"
-                onClick={clearCart}
-                disabled={cart.length === 0}
+                className="btn-secondary w-full text-xs py-2 bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 font-bold"
+                onClick={handleSendToKitchen}
+                disabled={cart.filter((ci) => !ci.isSent).length === 0 || submitting}
               >
-                Clear Cart
+                👨‍🍳 Send New Items to Kitchen →
               </button>
-              <button
-                className="btn-primary flex-2"
-                onClick={() => setShowCheckoutModal(true)}
-                disabled={cart.length === 0}
-              >
-                Checkout &amp; Pay →
-              </button>
+              <div className="flex gap-2 w-full">
+                <button
+                  className="btn-secondary flex-1"
+                  onClick={clearCart}
+                  disabled={cart.length === 0}
+                >
+                  Clear Cart
+                </button>
+                <button
+                  className="btn-primary flex-2"
+                  onClick={() => setShowCheckoutModal(true)}
+                  disabled={cart.length === 0}
+                >
+                  Checkout &amp; Pay →
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -713,10 +822,8 @@ export default function POS() {
                         isSelected ? 'ring-2 ring-amber-500' : ''
                       } ${isAvailable ? 'table-box-available' : 'table-box-occupied opacity-60'}`}
                       onClick={() => {
-                        if (isAvailable) {
-                          setSelectedTable(t);
-                          setShowTableModal(false);
-                        }
+                        handleSelectTable(t);
+                        setShowTableModal(false);
                       }}
                     >
                       <div className="table-box-header">
@@ -726,12 +833,15 @@ export default function POS() {
                             isAvailable ? 'status-badge-available' : 'status-badge-occupied'
                           }`}
                         >
-                          {isAvailable ? 'AVAILABLE' : 'OCCUPIED'}
+                          {isAvailable ? 'AVAILABLE' : 'OPEN ORDER'}
                         </span>
                       </div>
                       <div className="table-box-body">
                         <p className="table-box-section">📍 {t.section || 'Main Hall'}</p>
                         <p className="table-box-capacity">👥 Capacity: {t.capacity}</p>
+                        {!isAvailable && (
+                          <p className="text-xs text-amber-400 mt-1 font-semibold">Tap to Add Items / Pay</p>
+                        )}
                       </div>
                     </div>
                   );
