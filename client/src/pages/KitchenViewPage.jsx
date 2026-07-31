@@ -83,10 +83,10 @@ export default function KitchenViewPage() {
           >
             <span /><span /><span />
           </button>
-          <span className="text-3xl">👨‍🍳          <div>
+          <span className="text-3xl">👨‍🍳 </span><div> 
             <h1 className="text-xl font-bold text-amber-500">Kitchen Display System (KDS)</h1>
             <p className="text-xs text-muted">Live order queue for kitchen &amp; prep staff</p>
-          </div>
+            </div>
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
@@ -212,14 +212,14 @@ export default function KitchenViewPage() {
                                     NEW ADDITION (R{item.round})
                                   </span>
                                 )}
-                              </span>                       </span>
+                              </span>  
                               {item.notes && (
                                 <span className="ticket-item-note">
                                   ⚠️ Note: {item.notes}
                                 </span>
                               )}
                             </div>
-                          </div>
+                          // </div>
                         );
                       });
                     })()}
