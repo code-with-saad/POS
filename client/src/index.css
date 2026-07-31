@@ -1765,13 +1765,13 @@ input:checked + .slider:before {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #09090b;
+  background: var(--color-bg);
 }
 
 .kitchen-header {
   height: 68px;
-  background: #18181b;
-  border-bottom: 1px solid #3f3f46;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   padding: 0 1.5rem;
   display: flex;
   align-items: center;
@@ -1793,15 +1793,15 @@ input:checked + .slider:before {
 }
 
 .kitchen-ticket {
-  background: #18181b;
-  border: 1px solid #3f3f46;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 1rem;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
   animation: slideUp 0.3s ease;
 }
 
@@ -1826,21 +1826,21 @@ input:checked + .slider:before {
 .ticket-order-no {
   font-size: 1.35rem;
   font-weight: 900;
-  color: #fbbf24;
+  color: var(--color-primary);
   font-family: monospace;
   display: block;
 }
 
 .ticket-time-ago {
   font-size: 0.75rem;
-  color: #a1a1aa;
+  color: var(--color-muted);
 }
 
 .ticket-sub-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #27272a;
+  background: var(--color-surface2);
   padding: 0.5rem 0.75rem;
   border-radius: 6px;
   font-size: 0.85rem;
@@ -1859,7 +1859,7 @@ input:checked + .slider:before {
   align-items: flex-start;
   gap: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(63,63,70,0.4);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .ticket-item-row:last-child {
@@ -1869,7 +1869,7 @@ input:checked + .slider:before {
 .ticket-qty {
   font-size: 1.1rem;
   font-weight: 900;
-  color: #f59e0b;
+  color: var(--color-primary);
   background: rgba(245,158,11,0.15);
   padding: 2px 8px;
   border-radius: 6px;
@@ -1878,13 +1878,13 @@ input:checked + .slider:before {
 .ticket-item-name {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #fafafa;
+  color: var(--color-text);
   display: block;
 }
 
 .ticket-item-note {
   font-size: 0.8rem;
-  color: #fde047;
+  color: #d97706;
   background: rgba(234,179,8,0.15);
   border: 1px solid rgba(234,179,8,0.3);
   padding: 2px 6px;

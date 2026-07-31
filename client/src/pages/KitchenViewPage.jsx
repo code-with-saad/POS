@@ -83,15 +83,14 @@ export default function KitchenViewPage() {
           >
             <span /><span /><span />
           </button>
-          <span className="text-3xl">👨‍🍳</span>
-          <div>
-            <h1 className="text-xl font-bold text-amber-400">Kitchen Display System (KDS)</h1>
-            <p className="text-xs text-zinc-400">Live order queue for kitchen &amp; prep staff</p>
+          <span className="text-3xl">👨‍🍳          <div>
+            <h1 className="text-xl font-bold text-amber-500">Kitchen Display System (KDS)</h1>
+            <p className="text-xs text-muted">Live order queue for kitchen &amp; prep staff</p>
           </div>
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
-          <label className="flex items-center gap-2 text-xs text-zinc-300 cursor-pointer">
+          <label className="flex items-center gap-2 text-xs text-muted cursor-pointer">
             <input
               type="checkbox"
               checked={autoRefresh}
@@ -101,7 +100,7 @@ export default function KitchenViewPage() {
             Auto-refresh (10s)
           </label>
 
-          <span className="text-xs text-zinc-500 font-mono">
+          <span className="text-xs text-muted font-mono opacity-80">
             Updated {lastRefreshed.toLocaleTimeString()}
           </span>
 
@@ -118,7 +117,6 @@ export default function KitchenViewPage() {
           </Link>
         </div>
       </header>
-
 
       {/* Main Tickets Board */}
       <main className="kitchen-main">
@@ -175,11 +173,11 @@ export default function KitchenViewPage() {
 
                   {/* Order Type & Table */}
                   <div className="ticket-sub-header">
-                    <span className="uppercase font-bold text-amber-300">
+                    <span className="uppercase font-bold text-amber-500 dark:text-amber-300">
                       {order.orderType}
                     </span>
                     {order.table && (
-                      <span className="font-bold text-white">
+                      <span className="font-bold text-muted">
                         📍 Table {order.table.name}
                       </span>
                     )}
@@ -205,7 +203,7 @@ export default function KitchenViewPage() {
                               <span className="ticket-item-name">
                                 {item.name}
                                 {item.variant && (
-                                  <span className="ml-1 text-xs px-1 py-0.5 rounded bg-zinc-800 text-amber-300 font-semibold">
+                                  <span className="ml-1 text-xs px-1 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-300 font-semibold border border-amber-500/20">
                                     {item.variant}
                                   </span>
                                 )}
@@ -214,7 +212,7 @@ export default function KitchenViewPage() {
                                     NEW ADDITION (R{item.round})
                                   </span>
                                 )}
-                              </span>
+                              </span>                       </span>
                               {item.notes && (
                                 <span className="ticket-item-note">
                                   ⚠️ Note: {item.notes}
