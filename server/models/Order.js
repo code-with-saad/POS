@@ -25,6 +25,10 @@ const orderItemSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    variant: {
+      type: String,
+      default: '',
+    },
   },
   { _id: false }
 );

@@ -3,9 +3,9 @@ import { useState } from 'react';
 /**
  * Returns a relevant emoji/icon based on item name and category name
  */
-export function getFallbackIcon(itemName = '', categoryName = '') {
-  const name = itemName.toLowerCase();
-  const cat = categoryName.toLowerCase();
+function getFallbackIcon(itemName = '', categoryName = '') {
+  const name = itemName ? String(itemName).toLowerCase() : '';
+  const cat = categoryName ? String(categoryName).toLowerCase() : '';
 
   // Name keyword matches
   if (name.includes('espresso')) return '☕';
@@ -39,16 +39,22 @@ export function getFallbackIcon(itemName = '', categoryName = '') {
  */
 export default function ItemVisual({ imageUrl, itemName, categoryName, className = 'item-visual-box' }) {
   const [imgError, setImgError] = useState(false);
+  const [prevUrl, setPrevUrl] = useState(imageUrl);
 
-  const hasValidImage = imageUrl && imageUrl.trim().length > 0 && !imgError;
+  if (imageUrl !== prevUrl) {
+    setPrevUrl(imageUrl);
+    setImgError(false);
+  }
+
+  const hasValidImage = Boolean(imageUrl && typeof imageUrl === 'string' && imageUrl.trim().length > 0 && !imgError);
   const icon = getFallbackIcon(itemName, categoryName);
 
   if (hasValidImage) {
     return (
       <div className={className}>
         <img
-          src={imageUrl}
-          alt={itemName}
+          src={imageUrl.trim()}
+          alt={itemName || 'Menu item'}
           className="item-visual-img"
           onError={() => setImgError(true)}
           loading="lazy"

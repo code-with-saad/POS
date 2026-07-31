@@ -143,6 +143,31 @@ async function seed() {
       },
       // Desserts
       {
+        name: 'Rabri Kheer',
+        description: 'Traditional rich creamy rabri kheer dessert',
+        price: 350,
+        category: catMap['Desserts'],
+        isAvailable: true,
+        imageUrl: '',
+        variants: [
+          { name: 'Single Portion', price: 350 },
+          { name: 'Half Kg', price: 650 },
+          { name: 'Full Kg', price: 1200 },
+        ],
+      },
+      {
+        name: 'Special Cold Coffee',
+        description: 'Blended espresso shake with ice cream',
+        price: 450,
+        category: catMap['Cold Beverages'],
+        isAvailable: true,
+        imageUrl: '',
+        variants: [
+          { name: 'Regular (350ml)', price: 450 },
+          { name: 'Large (500ml)', price: 600 },
+        ],
+      },
+      {
         name: 'Chocolate Lava Cake',
         description: 'Warm cake with gooey chocolate center',
         price: 580,

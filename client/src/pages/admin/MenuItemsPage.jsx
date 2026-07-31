@@ -25,6 +25,7 @@ export default function MenuItemsPage() {
     category: '',
     isAvailable: true,
     imageUrl: '',
+    variants: [],
   });
   const [saving, setSaving] = useState(false);
 
@@ -83,6 +84,7 @@ export default function MenuItemsPage() {
       category: categories[0]?._id || '',
       isAvailable: true,
       imageUrl: '',
+      variants: [],
     });
     setShowModal(true);
   }
@@ -96,8 +98,31 @@ export default function MenuItemsPage() {
       category: item.category?._id || item.category || '',
       isAvailable: item.isAvailable,
       imageUrl: item.imageUrl || '',
+      variants: Array.isArray(item.variants) ? item.variants.map(v => ({ name: v.name, price: v.price })) : [],
     });
     setShowModal(true);
+  }
+
+  function handleAddVariantRow() {
+    setFormData((f) => ({
+      ...f,
+      variants: [...f.variants, { name: '', price: '' }],
+    }));
+  }
+
+  function handleUpdateVariant(index, field, value) {
+    setFormData((f) => {
+      const updated = [...f.variants];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...f, variants: updated };
+    });
+  }
+
+  function handleRemoveVariant(index) {
+    setFormData((f) => ({
+      ...f,
+      variants: f.variants.filter((_, i) => i !== index),
+    }));
   }
 
   async function handleSubmit(e) {
@@ -107,15 +132,27 @@ export default function MenuItemsPage() {
     setSuccess('');
 
     try {
+      const cleanPayload = {
+        ...formData,
+        price: Number(formData.price) || 0,
+        imageUrl: formData.imageUrl ? formData.imageUrl.trim() : '',
+        variants: formData.variants
+          .filter((v) => v.name && v.name.trim() !== '')
+          .map((v) => ({ name: v.name.trim(), price: Number(v.price) || 0 })),
+      };
+
+      let updatedItem;
       if (editingItem) {
-        await api.put(`/menu-items/${editingItem._id}`, formData);
+        updatedItem = await api.put(`/menu-items/${editingItem._id}`, cleanPayload);
+        setItems((prev) => prev.map((item) => (item._id === editingItem._id ? updatedItem : item)));
         setSuccess('Menu item updated successfully');
       } else {
-        await api.post('/menu-items', formData);
+        updatedItem = await api.post('/menu-items', cleanPayload);
+        setItems((prev) => [...prev, updatedItem]);
         setSuccess('Menu item created successfully');
       }
       setShowModal(false);
-      fetchItems();
+      fetchItems(true);
     } catch (err) {
       setError(err.message || 'Failed to save menu item');
     } finally {
@@ -357,7 +394,7 @@ export default function MenuItemsPage() {
                   <input
                     type="text"
                     placeholder="https://..."
-                    value={formData.imageUrl}
+                    value={formData.imageUrl || ''}
                     onChange={(e) =>
                       setFormData((f) => ({ ...f, imageUrl: e.target.value }))
                     }
@@ -375,6 +412,57 @@ export default function MenuItemsPage() {
                     setFormData((f) => ({ ...f, description: e.target.value }))
                   }
                 />
+              </div>
+
+              {/* Variants Section */}
+              <div className="form-group border-t border-zinc-800 pt-4 mt-2">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <label className="font-semibold text-amber-400">Size / Portion Variants (Optional)</label>
+                    <p className="text-xs text-zinc-400">e.g. Half Kg, Full Kg, Single portion with custom prices</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-secondary text-xs"
+                    onClick={handleAddVariantRow}
+                  >
+                    + Add Variant
+                  </button>
+                </div>
+
+                {formData.variants.length > 0 && (
+                  <div className="space-y-2 mt-2">
+                    {formData.variants.map((variant, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          placeholder="Variant Name (e.g. Half Kg)"
+                          value={variant.name}
+                          onChange={(e) => handleUpdateVariant(idx, 'name', e.target.value)}
+                          className="flex-2 text-sm"
+                          required
+                        />
+                        <input
+                          type="number"
+                          placeholder="Price (PKR)"
+                          min="0"
+                          value={variant.price}
+                          onChange={(e) => handleUpdateVariant(idx, 'price', e.target.value)}
+                          className="flex-1 text-sm"
+                          required
+                        />
+                        <button
+                          type="button"
+                          className="btn-icon btn-icon-danger"
+                          onClick={() => handleRemoveVariant(idx)}
+                          title="Remove variant"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="form-checkbox">

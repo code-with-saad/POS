@@ -176,13 +176,29 @@ export default function POS() {
   }
 
 
+  // Variant Picker Modal State
+  const [variantPickerItem, setVariantPickerItem] = useState(null);
+
   // Cart Operations
-  function addToCart(menuItem) {
+  function handleItemClick(menuItem) {
     if (!menuItem.isAvailable) return;
+    if (Array.isArray(menuItem.variants) && menuItem.variants.length > 0) {
+      setVariantPickerItem(menuItem);
+    } else {
+      addToCart(menuItem, null);
+    }
+  }
+
+  function addToCart(menuItem, variant = null) {
+    if (!menuItem.isAvailable) return;
+
+    const itemPrice = variant ? variant.price : menuItem.price;
+    const variantName = variant ? variant.name : '';
+    const cartKey = variant ? `${menuItem._id}_${variant.name}` : menuItem._id;
 
     setCart((prevCart) => {
       const existingIndex = prevCart.findIndex(
-        (ci) => ci.menuItem === menuItem._id
+        (ci) => ci.cartKey === cartKey
       );
 
       if (existingIndex > -1) {
@@ -193,9 +209,11 @@ export default function POS() {
         return [
           ...prevCart,
           {
+            cartKey,
             menuItem: menuItem._id,
             name: menuItem.name,
-            price: menuItem.price,
+            variant: variantName,
+            price: itemPrice,
             quantity: 1,
             notes: '',
             imageUrl: menuItem.imageUrl,
@@ -206,11 +224,11 @@ export default function POS() {
     });
   }
 
-  function updateQuantity(menuItemId, delta) {
+  function updateQuantity(cartKey, delta) {
     setCart((prevCart) => {
       return prevCart
         .map((item) => {
-          if (item.menuItem === menuItemId) {
+          if ((item.cartKey || item.menuItem) === cartKey) {
             const newQty = item.quantity + delta;
             return newQty > 0 ? { ...item, quantity: newQty } : null;
           }
@@ -220,16 +238,16 @@ export default function POS() {
     });
   }
 
-  function updateNotes(menuItemId, notes) {
+  function updateNotes(cartKey, notes) {
     setCart((prevCart) =>
       prevCart.map((item) =>
-        item.menuItem === menuItemId ? { ...item, notes } : item
+        (item.cartKey || item.menuItem) === cartKey ? { ...item, notes } : item
       )
     );
   }
 
-  function removeFromCart(menuItemId) {
-    setCart((prevCart) => prevCart.filter((i) => i.menuItem !== menuItemId));
+  function removeFromCart(cartKey) {
+    setCart((prevCart) => prevCart.filter((i) => (i.cartKey || i.menuItem) !== cartKey));
   }
 
   function clearCart() {
@@ -266,6 +284,8 @@ export default function POS() {
         tableId: orderType === 'dine-in' ? selectedTable?._id : undefined,
         items: cart.map((ci) => ({
           menuItem: ci.menuItem,
+          variant: ci.variant || undefined,
+          price: ci.price,
           quantity: ci.quantity,
           notes: ci.notes,
         })),
@@ -413,39 +433,44 @@ export default function POS() {
             </div>
           ) : (
             <div className="menu-cards-grid">
-              {filteredItems.map((item) => (
-                <div
-                  key={item._id}
-                  className={`menu-card ${!item.isAvailable ? 'menu-card-unavailable' : ''}`}
-                  onClick={() => addToCart(item)}
-                >
-                  <ItemVisual
-                    imageUrl={item.imageUrl}
-                    itemName={item.name}
-                    categoryName={item.category?.name}
-                    className="menu-card-visual"
-                  />
+              {filteredItems.map((item) => {
+                const hasVariants = Array.isArray(item.variants) && item.variants.length > 0;
+                return (
+                  <div
+                    key={item._id}
+                    className={`menu-card ${!item.isAvailable ? 'menu-card-unavailable' : ''}`}
+                    onClick={() => handleItemClick(item)}
+                  >
+                    <ItemVisual
+                      imageUrl={item.imageUrl}
+                      itemName={item.name}
+                      categoryName={item.category?.name}
+                      className="menu-card-visual"
+                    />
 
-                  <div className="menu-card-header">
-                    <span className="menu-card-name">{item.name}</span>
-                    <span className="menu-card-price">Rs. {item.price}</span>
+                    <div className="menu-card-header">
+                      <span className="menu-card-name">{item.name}</span>
+                      <span className="menu-card-price">
+                        {hasVariants ? `From Rs. ${Math.min(...item.variants.map(v => v.price))}` : `Rs. ${item.price}`}
+                      </span>
+                    </div>
+
+                    {item.description && (
+                      <p className="menu-card-desc">{item.description}</p>
+                    )}
+
+                    <div className="menu-card-footer">
+                      <span className="category-pill">{item.category?.name}</span>
+                      <button
+                        className="btn-add-cart"
+                        disabled={!item.isAvailable}
+                      >
+                        {!item.isAvailable ? 'Sold Out' : hasVariants ? 'Choose Size' : '+ Add'}
+                      </button>
+                    </div>
                   </div>
-
-                  {item.description && (
-                    <p className="menu-card-desc">{item.description}</p>
-                  )}
-
-                  <div className="menu-card-footer">
-                    <span className="category-pill">{item.category?.name}</span>
-                    <button
-                      className="btn-add-cart"
-                      disabled={!item.isAvailable}
-                    >
-                      {item.isAvailable ? '+ Add' : 'Sold Out'}
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -484,9 +509,10 @@ export default function POS() {
             ) : (
               cart.map((item, index) => {
                 const isSelected = index === selectedCartIndex;
+                const itemKey = item.cartKey || item.menuItem;
                 return (
                   <div
-                    key={item.menuItem}
+                    key={itemKey}
                     className={`cart-item-row ${isSelected ? 'cart-item-selected' : ''}`}
                     onClick={() => setSelectedCartIndex(index)}
                     style={isSelected ? { outline: '2px solid #f59e0b', borderRadius: '8px' } : {}}
@@ -498,7 +524,14 @@ export default function POS() {
                       className="cart-item-visual"
                     />
                     <div className="cart-item-info">
-                      <span className="cart-item-name">{item.name}</span>
+                      <span className="cart-item-name">
+                        {item.name}
+                        {item.variant && (
+                          <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-semibold">
+                            {item.variant}
+                          </span>
+                        )}
+                      </span>
                       <span className="cart-item-unit-price">Rs. {item.price} each</span>
 
                       {/* Per Item Note Input */}
@@ -507,7 +540,7 @@ export default function POS() {
                         className="cart-item-notes-input"
                         placeholder="Add note (e.g. extra foam)..."
                         value={item.notes}
-                        onChange={(e) => updateNotes(item.menuItem, e.target.value)}
+                        onChange={(e) => updateNotes(itemKey, e.target.value)}
                       />
                     </div>
 
@@ -518,7 +551,7 @@ export default function POS() {
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedCartIndex(index);
-                          updateQuantity(item.menuItem, -1);
+                          updateQuantity(itemKey, -1);
                         }}
                       >
                         -
@@ -529,7 +562,7 @@ export default function POS() {
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedCartIndex(index);
-                          updateQuantity(item.menuItem, 1);
+                          updateQuantity(itemKey, 1);
                         }}
                       >
                         +
@@ -543,7 +576,7 @@ export default function POS() {
                         className="btn-remove-item"
                         onClick={(e) => {
                           e.stopPropagation();
-                          removeFromCart(item.menuItem);
+                          removeFromCart(itemKey);
                         }}
                         title="Remove Item"
                       >
@@ -604,6 +637,58 @@ export default function POS() {
           </div>
         </div>
       </div>
+
+      {/* Size / Variant Picker Modal */}
+      {variantPickerItem && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <div className="modal-header">
+              <h3>Select Size / Portion</h3>
+              <button className="modal-close" onClick={() => setVariantPickerItem(null)}>
+                ✕
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4 pb-4 border-b border-zinc-800">
+                <ItemVisual
+                  imageUrl={variantPickerItem.imageUrl}
+                  itemName={variantPickerItem.name}
+                  categoryName={variantPickerItem.category?.name}
+                  className="w-12 h-12 rounded-lg"
+                />
+                <div>
+                  <h4 className="font-bold text-lg text-white">{variantPickerItem.name}</h4>
+                  <p className="text-xs text-zinc-400">Choose a portion size to add to order:</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {variantPickerItem.variants.map((v, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className="w-full flex items-center justify-between p-3 rounded-lg bg-zinc-800/80 hover:bg-amber-500/20 border border-zinc-700 hover:border-amber-500 text-left transition-all"
+                    onClick={() => {
+                      addToCart(variantPickerItem, v);
+                      setVariantPickerItem(null);
+                    }}
+                  >
+                    <span className="font-semibold text-white">{v.name}</span>
+                    <span className="font-bold text-amber-400">Rs. {v.price.toLocaleString()}</span>
+                  </button>
+                ))}
+              </div>
+
+              <button
+                className="btn-secondary w-full mt-4"
+                onClick={() => setVariantPickerItem(null)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Table Picker Modal */}
       {showTableModal && (

@@ -20,7 +20,7 @@ export async function getMenuItems(req, res, next) {
 /** POST /api/menu-items — Admin only */
 export async function createMenuItem(req, res, next) {
   try {
-    const { name, description, price, category, isAvailable, imageUrl } = req.body;
+    const { name, description, price, category, isAvailable, imageUrl, variants } = req.body;
     if (!name || price === undefined || !category) {
       return res
         .status(400)
@@ -28,12 +28,13 @@ export async function createMenuItem(req, res, next) {
     }
 
     const item = await MenuItem.create({
-      name: name.trim(),
-      description: description ? description.trim() : '',
-      price: Number(price),
+      name: String(name).trim(),
+      description: description ? String(description).trim() : '',
+      price: Number(price) || 0,
       category,
       isAvailable: isAvailable !== undefined ? Boolean(isAvailable) : true,
-      imageUrl: imageUrl || '',
+      imageUrl: imageUrl ? String(imageUrl).trim() : '',
+      variants: Array.isArray(variants) ? variants.map(v => ({ name: String(v.name).trim(), price: Number(v.price) || 0 })) : [],
     });
 
     const populated = await item.populate('category', 'name sortOrder');
@@ -46,19 +47,20 @@ export async function createMenuItem(req, res, next) {
 /** PUT /api/menu-items/:id — Admin only */
 export async function updateMenuItem(req, res, next) {
   try {
-    const { name, description, price, category, isAvailable, imageUrl } = req.body;
+    const { name, description, price, category, isAvailable, imageUrl, variants } = req.body;
     const item = await MenuItem.findById(req.params.id);
 
     if (!item) {
       return res.status(404).json({ success: false, message: 'Menu item not found' });
     }
 
-    if (name) item.name = name.trim();
-    if (description !== undefined) item.description = description.trim();
-    if (price !== undefined) item.price = Number(price);
+    if (name !== undefined) item.name = String(name).trim();
+    if (description !== undefined) item.description = String(description).trim();
+    if (price !== undefined) item.price = Number(price) || 0;
     if (category) item.category = category;
     if (isAvailable !== undefined) item.isAvailable = Boolean(isAvailable);
-    if (imageUrl !== undefined) item.imageUrl = imageUrl;
+    if (imageUrl !== undefined) item.imageUrl = String(imageUrl).trim();
+    if (variants !== undefined) item.variants = Array.isArray(variants) ? variants.map(v => ({ name: String(v.name).trim(), price: Number(v.price) || 0 })) : [];
 
     await item.save();
     const populated = await item.populate('category', 'name sortOrder');

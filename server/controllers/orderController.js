@@ -66,13 +66,26 @@ export async function createOrder(req, res, next) {
       }
 
       const qty = Math.max(1, Number(item.quantity) || 1);
-      const linePrice = menuItem.price;
+      
+      let linePrice = menuItem.price;
+      let variantName = '';
+      if (item.variant) {
+        const matchedVariant = menuItem.variants?.find((v) => v.name === item.variant);
+        if (matchedVariant) {
+          linePrice = matchedVariant.price;
+          variantName = matchedVariant.name;
+        }
+      } else if (item.price !== undefined && Number(item.price) >= 0) {
+        linePrice = Number(item.price);
+      }
+
       const lineSubtotal = linePrice * qty;
       subtotal += lineSubtotal;
 
       processedItems.push({
         menuItem: menuItem._id,
         name: menuItem.name,
+        variant: variantName || (item.variant ? String(item.variant) : ''),
         price: linePrice,
         quantity: qty,
         notes: item.notes ? String(item.notes).trim() : '',

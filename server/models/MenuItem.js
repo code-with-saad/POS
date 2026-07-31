@@ -29,7 +29,14 @@ const menuItemSchema = new mongoose.Schema(
     imageUrl: {
       type: String,
       default: '',
+      trim: true,
     },
+    variants: [
+      {
+        name: { type: String, required: true, trim: true },
+        price: { type: Number, required: true, min: 0 },
+      },
+    ],
   },
   {
     timestamps: true,
