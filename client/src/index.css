@@ -4,8 +4,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Design Tokens ──────────────────────────────────────────────── */
-:root {
+/* ─── Design Tokens (Dark — default) ────────────────────────────── */
+:root,
+[data-theme="dark"] {
   --color-bg:        #09090b;
   --color-surface:   #18181b;
   --color-surface2:  #27272a;
@@ -18,6 +19,20 @@
   --color-success:   #10b981;
   --radius:          12px;
   --radius-sm:       8px;
+}
+
+/* ─── Design Tokens (Light) ─────────────────────────────────────── */
+[data-theme="light"] {
+  --color-bg:        #f4f4f5;
+  --color-surface:   #ffffff;
+  --color-surface2:  #e4e4e7;
+  --color-border:    #d4d4d8;
+  --color-primary:   #d97706;
+  --color-primary-d: #b45309;
+  --color-text:      #09090b;
+  --color-muted:     #71717a;
+  --color-error:     #dc2626;
+  --color-success:   #059669;
 }
 
 /* ─── Base Reset ─────────────────────────────────────────────────── */
@@ -306,9 +321,15 @@ html, body, #root {
   padding: 1rem 1.25rem;
   border-top: 1px solid var(--color-border);
   display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sidebar-user-row {
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
+  width: 100%;
 }
 
 .user-profile {
@@ -2498,6 +2519,418 @@ input:checked + .slider:before {
     max-width: unset;
   }
 }
+
+/* ─── Drawer Backdrop ────────────────────────────────────────────── */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
+  z-index: 200;
+  pointer-events: none;
+  transition: background 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+.drawer-backdrop--open {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  pointer-events: all;
+}
+
+/* ─── Side Drawer Panel ──────────────────────────────────────────── */
+.side-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 280px;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 8px 0 40px rgba(0, 0, 0, 0.5);
+}
+
+.side-drawer--open {
+  transform: translateX(0);
+}
+
+/* Drawer Header */
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.drawer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.drawer-brand-icon {
+  font-size: 1.6rem;
+}
+
+.drawer-brand-name {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.drawer-brand-sub {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--color-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.drawer-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.drawer-close:hover {
+  background: var(--color-surface2);
+  color: var(--color-text);
+}
+
+/* Drawer Nav */
+.drawer-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.drawer-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.drawer-nav-link:hover {
+  background: var(--color-surface2);
+  color: var(--color-text);
+}
+
+.drawer-nav-link--active {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--color-primary);
+}
+
+.drawer-nav-icon {
+  font-size: 1.1rem;
+  width: 1.4rem;
+  text-align: center;
+}
+
+/* Drawer Footer */
+.drawer-footer {
+  padding: 0.75rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.drawer-theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.drawer-theme-toggle:hover {
+  background: var(--color-surface2);
+  color: var(--color-text);
+}
+
+.drawer-theme-icon {
+  font-size: 1rem;
+}
+
+.drawer-user {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  background: var(--color-surface2);
+  border-radius: var(--radius-sm);
+}
+
+.drawer-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #000;
+  font-weight: 700;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.drawer-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.drawer-user-name {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawer-user-role {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--color-muted);
+  text-transform: capitalize;
+}
+
+.drawer-logout {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--color-muted);
+  padding: 0.25rem;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.drawer-logout:hover {
+  color: var(--color-error);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ─── Hamburger Button ───────────────────────────────────────────── */
+.pos-hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.pos-hamburger:hover {
+  background: var(--color-surface2);
+  border-color: var(--color-primary);
+}
+
+.pos-hamburger span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-text);
+  transition: background 0.15s;
+}
+
+.pos-hamburger--kitchen span {
+  background: #fbbf24;
+}
+
+/* ─── Sidebar Theme Toggle Buttons ──────────────────────────────── */
+.sidebar-theme-btn-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface2);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.sidebar-theme-btn-top:hover {
+  border-color: var(--color-primary);
+  transform: scale(1.05);
+}
+
+.sidebar-theme-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface2);
+  color: var(--color-text);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-theme-btn:hover {
+  border-color: var(--color-primary);
+}
+
+/* ─── Light mode overrides for high contrast UI ─────────────────── */
+[data-theme="light"] {
+  --color-bg:        #f8fafc;
+  --color-surface:   #ffffff;
+  --color-surface2:  #f1f5f9;
+  --color-border:    #e2e8f0;
+  --color-primary:   #ea580c;
+  --color-primary-d: #c2410c;
+  --color-text:      #0f172a;
+  --color-muted:     #64748b;
+  --color-error:     #ef4444;
+  --color-success:   #10b981;
+}
+
+[data-theme="light"] body,
+[data-theme="light"] #root,
+[data-theme="light"] .admin-layout,
+[data-theme="light"] .admin-main {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .admin-sidebar,
+[data-theme="light"] .side-drawer,
+[data-theme="light"] .pos-header,
+[data-theme="light"] .page-header {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .stat-card,
+[data-theme="light"] .admin-card,
+[data-theme="light"] .dashboard-card,
+[data-theme="light"] .settings-group,
+[data-theme="light"] .data-table-container,
+[data-theme="light"] .table-card {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Ensure ALL headings, text, subtitles, and labels are dark and clearly legible */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] p,
+[data-theme="light"] span,
+[data-theme="light"] div,
+[data-theme="light"] td,
+[data-theme="light"] th,
+[data-theme="light"] label {
+  color: inherit;
+}
+
+[data-theme="light"] .brand-name,
+[data-theme="light"] .page-title,
+[data-theme="light"] .settings-title,
+[data-theme="light"] .user-name,
+[data-theme="light"] .stat-value,
+[data-theme="light"] .stat-label,
+[data-theme="light"] .card-title,
+[data-theme="light"] .recent-order-id {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .page-subtitle,
+[data-theme="light"] .settings-subtitle,
+[data-theme="light"] .user-role,
+[data-theme="light"] .stat-sub,
+[data-theme="light"] .stat-change,
+[data-theme="light"] .recent-order-time {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .nav-link,
+[data-theme="light"] .drawer-nav-link {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .nav-link:hover,
+[data-theme="light"] .drawer-nav-link:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .nav-link-active,
+[data-theme="light"] .drawer-nav-link--active {
+  background: #ffedd5 !important;
+  color: #c2410c !important;
+}
+
+[data-theme="light"] .sidebar-theme-btn {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+
 
 
 

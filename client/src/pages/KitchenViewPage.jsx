@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../api/client.js';
+import SideDrawer from '../components/SideDrawer.jsx';
 
 export default function KitchenViewPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -68,10 +70,19 @@ export default function KitchenViewPage() {
   }
 
   return (
-    <div className="kitchen-app">
+    <div className={`kitchen-app${drawerOpen ? ' pos-drawer-active' : ''}`}>
+      <SideDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} currentPage="Kitchen View" />
+
       {/* Top KDS Bar */}
       <header className="kitchen-header">
         <div className="flex items-center gap-3">
+          <button
+            className="pos-hamburger pos-hamburger--kitchen"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Open navigation"
+          >
+            <span /><span /><span />
+          </button>
           <span className="text-3xl">👨‍🍳</span>
           <div>
             <h1 className="text-xl font-bold text-amber-400">Kitchen Display System (KDS)</h1>

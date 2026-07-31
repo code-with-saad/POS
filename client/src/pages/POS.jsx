@@ -3,10 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../api/client.js';
 import ItemVisual from '../components/ItemVisual.jsx';
+import SideDrawer from '../components/SideDrawer.jsx';
 
 export default function POS() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Master Data
   const [categories, setCategories] = useState([]);
@@ -224,10 +226,19 @@ export default function POS() {
   }
 
   return (
-    <div className="pos-app">
+    <div className={`pos-app${drawerOpen ? ' pos-drawer-active' : ''}`}>
+      <SideDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} currentPage="POS Terminal" />
+
       {/* Top Navbar */}
       <header className="pos-header">
         <div className="pos-header-left">
+          <button
+            className="pos-hamburger"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Open navigation"
+          >
+            <span /><span /><span />
+          </button>
           <div className="pos-logo">☕</div>
           <div>
             <h1 className="pos-title">{settings?.restaurantName || 'CafePOS'}</h1>

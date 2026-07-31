@@ -1,10 +1,12 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useSettings } from '../context/SettingsContext.jsx';
+import { useTheme } from '../context/ThemeContext.jsx';
 
 export default function AdminLayout() {
   const { user, logout } = useAuth();
   const { settings } = useSettings();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -28,11 +30,16 @@ export default function AdminLayout() {
     <div className="admin-layout">
       <aside className="admin-sidebar">
         <div className="sidebar-brand">
-          <span className="brand-icon">☕</span>
-          <div>
-            <h1 className="brand-name">{settings?.restaurantName || 'CafePOS'}</h1>
-            <span className="brand-badge">ADMIN PANEL</span>
+          <div className="flex items-center gap-2">
+            <span className="brand-icon">☕</span>
+            <div>
+              <h1 className="brand-name">{settings?.restaurantName || 'CafePOS'}</h1>
+              <span className="brand-badge">ADMIN PANEL</span>
+            </div>
           </div>
+          <button className="sidebar-theme-btn-top" onClick={toggleTheme} title="Toggle theme">
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
         </div>
 
         <nav className="sidebar-nav">
@@ -52,16 +59,22 @@ export default function AdminLayout() {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="user-profile">
-            <div className="avatar">{user?.name?.[0] || 'A'}</div>
-            <div className="user-info">
-              <p className="user-name">{user?.name}</p>
-              <p className="user-role">{user?.role}</p>
-            </div>
-          </div>
-          <button className="logout-btn" onClick={handleLogout} title="Logout">
-            🚪 Logout
+          <button className="sidebar-theme-btn" onClick={toggleTheme} title="Toggle theme">
+            <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+            <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
+          <div className="sidebar-user-row">
+            <div className="user-profile">
+              <div className="avatar">{user?.name?.[0] || 'A'}</div>
+              <div className="user-info">
+                <p className="user-name">{user?.name}</p>
+                <p className="user-role">{user?.role}</p>
+              </div>
+            </div>
+            <button className="logout-btn" onClick={handleLogout} title="Logout">
+              🚪 Logout
+            </button>
+          </div>
         </div>
       </aside>
 
