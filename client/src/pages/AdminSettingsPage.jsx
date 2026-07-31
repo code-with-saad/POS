@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { getSettings, updateSetting } from '../api/settings';
 import { useSettings } from '../context/SettingsContext';
+import { useToast } from '../context/ToastContext.jsx';
 
 const FIELDS = [
   {
@@ -50,13 +51,12 @@ const FIELDS = [
 const GROUPS = [...new Set(FIELDS.map((f) => f.group))];
 
 export default function AdminSettingsPage() {
+  const { showToast } = useToast();
   const { updateSettingsContext } = useSettings();
   const [settings, setSettings] = useState({});
   const [original, setOriginal] = useState({});
   const [loading, setLoading]   = useState(true);
   const [saving, setSaving]     = useState(false);
-  const [toast, setToast]       = useState(null); // { type: 'success'|'error', msg }
-  const toastTimer = useRef(null);
 
   useEffect(() => {
     fetchSettings();
@@ -81,11 +81,6 @@ export default function AdminSettingsPage() {
     }
   }
 
-  function showToast(type, msg) {
-    setToast({ type, msg });
-    clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 3500);
-  }
 
   function handleChange(key, value) {
     setSettings((prev) => ({ ...prev, [key]: value }));
@@ -126,21 +121,14 @@ export default function AdminSettingsPage() {
   if (loading) {
     return (
       <div className="settings-loading">
-        <div className="settings-spinner" />
-        <p>Loading settings…</p>
+        <div className="page-spinner" />
+        <p className="page-spinner-text">Loading settings…</p>
       </div>
     );
   }
 
   return (
     <div className="settings-page">
-      {/* Toast */}
-      {toast && (
-        <div className={`settings-toast settings-toast--${toast.type}`}>
-          <span>{toast.type === 'success' ? '✅' : '❌'}</span>
-          {toast.msg}
-        </div>
-      )}
 
       {/* Header */}
       <div className="settings-header">

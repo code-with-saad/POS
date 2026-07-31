@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client.js';
+import { useToast } from '../context/ToastContext.jsx';
 
 export default function AdminDashboard() {
+  const { showToast } = useToast();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchAnalytics();
@@ -15,11 +16,9 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
       const res = await api.get('/analytics/dashboard');
-      // api.client returns response body directly
       setData(res.data || res);
-      setError('');
     } catch (err) {
-      setError(err.message || 'Failed to load dashboard analytics');
+      showToast('error', err.message || 'Failed to load dashboard analytics');
     } finally {
       setLoading(false);
     }
@@ -28,22 +27,21 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="page-container">
-        <div className="loading-state">
-          <div className="spinner"></div>
-          <p>Loading real-time analytics...</p>
+        <div className="page-spinner-overlay">
+          <div className="page-spinner" />
+          <p className="page-spinner-text">Loading analytics…</p>
         </div>
       </div>
     );
   }
 
-  if (error) {
+  if (!data) {
     return (
       <div className="page-container">
-        <div className="error-alert">
-          <span>⚠️ {error}</span>
-          <button className="btn-secondary btn-sm" onClick={fetchAnalytics}>
-            Retry
-          </button>
+        <div className="empty-state">
+          <span className="empty-icon">📊</span>
+          <h3>No data available</h3>
+          <button className="btn-primary mt-4" onClick={fetchAnalytics}>Retry</button>
         </div>
       </div>
     );

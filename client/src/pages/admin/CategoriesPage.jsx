@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../api/client.js';
+import { useToast } from '../../context/ToastContext.jsx';
 
 export default function CategoriesPage() {
+  const { showToast } = useToast();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
@@ -33,9 +33,8 @@ export default function CategoriesPage() {
       const data = await api.get('/categories');
       setCategories(data);
       setLastRefreshed(new Date());
-      setError('');
     } catch (err) {
-      setError(err.message || 'Failed to load categories');
+      showToast('error', err.message || 'Failed to load categories');
     } finally {
       if (!silent) setLoading(false);
     }
@@ -56,21 +55,18 @@ export default function CategoriesPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true);
-    setError('');
-    setSuccess('');
-
     try {
       if (editingCategory) {
         await api.put(`/categories/${editingCategory._id}`, formData);
-        setSuccess('Category updated successfully');
+        showToast('success', 'Category updated successfully');
       } else {
         await api.post('/categories', formData);
-        setSuccess('Category created successfully');
+        showToast('success', 'Category created successfully');
       }
       setShowModal(false);
       fetchCategories();
     } catch (err) {
-      setError(err.message || 'Failed to save category');
+      showToast('error', err.message || 'Failed to save category');
     } finally {
       setSaving(false);
     }
@@ -82,10 +78,10 @@ export default function CategoriesPage() {
     }
     try {
       await api.delete(`/categories/${category._id}`);
-      setSuccess('Category deleted successfully');
+      showToast('success', 'Category deleted');
       fetchCategories();
     } catch (err) {
-      setError(err.message || 'Failed to delete category');
+      showToast('error', err.message || 'Failed to delete category');
     }
   }
 
@@ -118,13 +114,11 @@ export default function CategoriesPage() {
         </div>
       </header>
 
-      {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
 
       {loading ? (
-        <div className="loading-state">
-          <div className="btn-spinner" />
-          <p>Loading categories...</p>
+        <div className="page-spinner-overlay">
+          <div className="page-spinner" />
+          <p className="page-spinner-text">Loading categories…</p>
         </div>
       ) : categories.length === 0 ? (
         <div className="empty-state">

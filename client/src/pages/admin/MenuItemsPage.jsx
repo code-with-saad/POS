@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../api/client.js';
 import ItemVisual from '../../components/ItemVisual.jsx';
+import { useToast } from '../../context/ToastContext.jsx';
 
 export default function MenuItemsPage() {
+  const { showToast } = useToast();
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
@@ -128,9 +128,6 @@ export default function MenuItemsPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true);
-    setError('');
-    setSuccess('');
-
     try {
       const cleanPayload = {
         ...formData,
@@ -145,16 +142,16 @@ export default function MenuItemsPage() {
       if (editingItem) {
         updatedItem = await api.put(`/menu-items/${editingItem._id}`, cleanPayload);
         setItems((prev) => prev.map((item) => (item._id === editingItem._id ? updatedItem : item)));
-        setSuccess('Menu item updated successfully');
+        showToast('success', 'Menu item updated successfully');
       } else {
         updatedItem = await api.post('/menu-items', cleanPayload);
         setItems((prev) => [...prev, updatedItem]);
-        setSuccess('Menu item created successfully');
+        showToast('success', 'Menu item created successfully');
       }
       setShowModal(false);
       fetchItems(true);
     } catch (err) {
-      setError(err.message || 'Failed to save menu item');
+      showToast('error', err.message || 'Failed to save menu item');
     } finally {
       setSaving(false);
     }
@@ -167,7 +164,7 @@ export default function MenuItemsPage() {
         prev.map((i) => (i._id === item._id ? { ...i, isAvailable: updated.isAvailable } : i))
       );
     } catch (err) {
-      setError(err.message || 'Failed to update availability');
+      showToast('error', err.message || 'Failed to update availability');
     }
   }
 
@@ -175,10 +172,10 @@ export default function MenuItemsPage() {
     if (!window.confirm(`Delete menu item "${item.name}"?`)) return;
     try {
       await api.delete(`/menu-items/${item._id}`);
-      setSuccess('Menu item deleted successfully');
+      showToast('success', 'Menu item deleted');
       fetchItems();
     } catch (err) {
-      setError(err.message || 'Failed to delete menu item');
+      showToast('error', err.message || 'Failed to delete menu item');
     }
   }
 
@@ -216,8 +213,6 @@ export default function MenuItemsPage() {
         </div>
       </header>
 
-      {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
 
       {/* Filter Bar */}
       <div className="filter-bar">
@@ -249,9 +244,9 @@ export default function MenuItemsPage() {
       </div>
 
       {loading ? (
-        <div className="loading-state">
-          <div className="btn-spinner" />
-          <p>Loading menu items...</p>
+        <div className="page-spinner-overlay">
+          <div className="page-spinner" />
+          <p className="page-spinner-text">Loading menu items…</p>
         </div>
       ) : filteredItems.length === 0 ? (
         <div className="empty-state">

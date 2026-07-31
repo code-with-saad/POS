@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { connectDB } from './config/db.js';
 import healthRoutes from './routes/healthRoutes.js';
 import authRoutes from './routes/authRoutes.js';
@@ -35,7 +36,17 @@ app.use(
 );
 app.use(express.json());
 
+// Rate limiter — login brute-force protection
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,                  // max 10 attempts per window per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many login attempts. Please try again in 15 minutes.' },
+});
+
 app.use('/api/health', healthRoutes);
+app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/menu-items', menuItemRoutes);

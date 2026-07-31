@@ -3049,9 +3049,95 @@ input:checked + .slider:before {
     gap: 0.5rem;
   }
 
-  .cart-item-qty-controls {
-    margin-left: auto;
-  }
+}
+
+/* ─── Global Toast Notifications & Spinner Overlay ───────────────── */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 380px;
+  width: calc(100vw - 3rem);
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast--leaving {
+  animation: toastFadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast--success { border-left: 4px solid var(--color-success); }
+.toast--error { border-left: 4px solid var(--color-error); }
+.toast--warning { border-left: 4px solid var(--color-primary); }
+.toast--info { border-left: 4px solid #3b82f6; }
+
+.toast-icon { font-size: 1.1rem; flex-shrink: 0; }
+.toast-message { flex: 1; word-break: break-word; line-height: 1.35; }
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0 0.2rem;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+.toast-close:hover { color: var(--color-text); }
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(1rem) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toastFadeOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(0.5rem) scale(0.95); }
+}
+
+/* Page Spinner Overlay */
+.page-spinner-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+  width: 100%;
+}
+.page-spinner {
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(245, 158, 11, 0.2);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: pageSpinnerSpin 0.75s linear infinite;
+}
+.page-spinner-text {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+@keyframes pageSpinnerSpin {
+  to { transform: rotate(360deg); }
 }
 
 

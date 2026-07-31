@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../api/client.js';
+import { useToast } from '../../context/ToastContext.jsx';
 
 export default function TablesPage() {
+  const { showToast } = useToast();
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
@@ -41,9 +41,8 @@ export default function TablesPage() {
       const data = await api.get('/tables');
       setTables(data);
       setLastRefreshed(new Date());
-      setError('');
     } catch (err) {
-      setError(err.message || 'Failed to load tables');
+      showToast('error', err.message || 'Failed to load tables');
     } finally {
       if (!silent) setLoading(false);
     }
@@ -76,21 +75,18 @@ export default function TablesPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true);
-    setError('');
-    setSuccess('');
-
     try {
       if (editingTable) {
         await api.put(`/tables/${editingTable._id}`, formData);
-        setSuccess('Table updated successfully');
+        showToast('success', 'Table updated successfully');
       } else {
         await api.post('/tables', formData);
-        setSuccess('Table created successfully');
+        showToast('success', 'Table created successfully');
       }
       setShowModal(false);
       fetchTables();
     } catch (err) {
-      setError(err.message || 'Failed to save table');
+      showToast('error', err.message || 'Failed to save table');
     } finally {
       setSaving(false);
     }
@@ -104,7 +100,7 @@ export default function TablesPage() {
         prev.map((t) => (t._id === table._id ? { ...t, status: updated.status } : t))
       );
     } catch (err) {
-      setError(err.message || 'Failed to update table status');
+      showToast('error', err.message || 'Failed to update table status');
     }
   }
 
@@ -112,10 +108,10 @@ export default function TablesPage() {
     if (!window.confirm(`Delete table "${table.name}"?`)) return;
     try {
       await api.delete(`/tables/${table._id}`);
-      setSuccess('Table deleted successfully');
+      showToast('success', 'Table deleted');
       fetchTables();
     } catch (err) {
-      setError(err.message || 'Failed to delete table');
+      showToast('error', err.message || 'Failed to delete table');
     }
   }
 
@@ -152,8 +148,6 @@ export default function TablesPage() {
         </div>
       </header>
 
-      {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
 
       {/* Section Filter Bar */}
       <div className="filter-bar">
@@ -177,9 +171,9 @@ export default function TablesPage() {
       </div>
 
       {loading ? (
-        <div className="loading-state">
-          <div className="btn-spinner" />
-          <p>Loading dining tables...</p>
+        <div className="page-spinner-overlay">
+          <div className="page-spinner" />
+          <p className="page-spinner-text">Loading tables…</p>
         </div>
       ) : filteredTables.length === 0 ? (
         <div className="empty-state">

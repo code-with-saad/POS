@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../api/client.js';
+import { useToast } from '../../context/ToastContext.jsx';
 
 export default function UsersPage() {
+  const { showToast } = useToast();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
 
   // Modals
   const [showAddModal, setShowAddModal] = useState(false);
@@ -36,9 +36,8 @@ export default function UsersPage() {
       setLoading(true);
       const res = await api.get('/users');
       setUsers(res);
-      setError('');
     } catch (err) {
-      setError(err.message || 'Failed to load user list');
+      showToast('error', err.message || 'Failed to load user list');
     } finally {
       setLoading(false);
     }
@@ -91,10 +90,9 @@ export default function UsersPage() {
         password: formData.password,
         role: formData.role,
       });
-      setSuccessMsg(`Account created for ${formData.name}!`);
+      showToast('success', `Account created for ${formData.name}!`);
       setShowAddModal(false);
       fetchUsers();
-      setTimeout(() => setSuccessMsg(''), 4000);
     } catch (err) {
       setModalError(err.message || 'Failed to create user');
     } finally {
@@ -113,10 +111,9 @@ export default function UsersPage() {
         role: formData.role,
         isActive: formData.isActive,
       });
-      setSuccessMsg(`User updated successfully!`);
+      showToast('success', 'User updated successfully!');
       setShowEditModal(false);
       fetchUsers();
-      setTimeout(() => setSuccessMsg(''), 4000);
     } catch (err) {
       setModalError(err.message || 'Failed to update user');
     } finally {
@@ -136,9 +133,8 @@ export default function UsersPage() {
       await api.patch(`/users/${selectedUser._id}/reset-password`, {
         newPassword: resetPass.newPassword,
       });
-      setSuccessMsg(`Password reset successfully for ${selectedUser.username}!`);
+      showToast('success', `Password reset for ${selectedUser.username}!`);
       setShowResetModal(false);
-      setTimeout(() => setSuccessMsg(''), 4000);
     } catch (err) {
       setModalError(err.message || 'Failed to reset password');
     } finally {
@@ -150,11 +146,10 @@ export default function UsersPage() {
     if (!window.confirm(`Are you sure you want to delete ${user.name}'s account?`)) return;
     try {
       await api.delete(`/users/${user._id}`);
-      setSuccessMsg(`User account deleted.`);
+      showToast('success', 'User account deleted.');
       fetchUsers();
-      setTimeout(() => setSuccessMsg(''), 4000);
     } catch (err) {
-      alert(err.message || 'Failed to delete user');
+      showToast('error', err.message || 'Failed to delete user');
     }
   }
 
@@ -170,25 +165,11 @@ export default function UsersPage() {
         </button>
       </header>
 
-      {successMsg && (
-        <div className="toast-success">
-          <span>✅ {successMsg}</span>
-        </div>
-      )}
-
-      {error && (
-        <div className="error-alert mb-4">
-          <span>⚠️ {error}</span>
-          <button className="btn-secondary btn-sm" onClick={fetchUsers}>
-            Retry
-          </button>
-        </div>
-      )}
 
       {loading ? (
-        <div className="loading-state">
-          <div className="spinner"></div>
-          <p>Loading staff accounts...</p>
+        <div className="page-spinner-overlay">
+          <div className="page-spinner" />
+          <p className="page-spinner-text">Loading staff accounts…</p>
         </div>
       ) : (
         <div className="admin-card p-0">

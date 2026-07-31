@@ -2,14 +2,15 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../api/client.js';
 import SideDrawer from '../components/SideDrawer.jsx';
+import { useToast } from '../context/ToastContext.jsx';
 
 export default function KitchenViewPage() {
+  const { showToast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
@@ -40,9 +41,8 @@ export default function KitchenViewPage() {
       );
       setOrders(active);
       setLastRefreshed(new Date());
-      setError('');
     } catch (err) {
-      setError(err.message || 'Failed to refresh kitchen orders');
+      showToast('error', err.message || 'Failed to refresh kitchen orders');
     } finally {
       if (!silent) setLoading(false);
     }
@@ -58,7 +58,7 @@ export default function KitchenViewPage() {
         return prev.map((o) => (o._id === orderId ? updated : o));
       });
     } catch (err) {
-      setError(err.message || 'Failed to update status');
+      showToast('error', err.message || 'Failed to update status');
     }
   }
 
@@ -119,14 +119,13 @@ export default function KitchenViewPage() {
         </div>
       </header>
 
-      {error && <div className="alert alert-error mx-6 mt-4">{error}</div>}
 
       {/* Main Tickets Board */}
       <main className="kitchen-main">
         {loading ? (
-          <div className="loading-state flex-1">
-            <div className="btn-spinner" />
-            <p>Loading active kitchen tickets...</p>
+          <div className="page-spinner-overlay" style={{ position: 'relative', minHeight: '200px' }}>
+            <div className="page-spinner" />
+            <p className="page-spinner-text">Loading kitchen tickets…</p>
           </div>
         ) : orders.length === 0 ? (
           <div className="empty-state flex-1">

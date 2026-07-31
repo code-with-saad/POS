@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../api/client.js';
+import { useToast } from '../../context/ToastContext.jsx';
 
 export default function OrdersHistoryPage() {
+  const { showToast } = useToast();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   // Filters
   const [statusFilter, setStatusFilter] = useState('');
@@ -30,9 +31,8 @@ export default function OrdersHistoryPage() {
       const queryString = params.toString() ? `?${params.toString()}` : '';
       const data = await api.get(`/orders${queryString}`);
       setOrders(data);
-      setError('');
     } catch (err) {
-      setError(err.message || 'Failed to load order history');
+      showToast('error', err.message || 'Failed to load order history');
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ export default function OrdersHistoryPage() {
         setSelectedOrder(updated);
       }
     } catch (err) {
-      setError(err.message || 'Failed to update order status');
+      showToast('error', err.message || 'Failed to update order status');
     } finally {
       setUpdating(false);
     }
@@ -78,7 +78,6 @@ export default function OrdersHistoryPage() {
         </button>
       </header>
 
-      {error && <div className="alert alert-error">{error}</div>}
 
       {/* Filter Bar */}
       <div className="filter-bar">
