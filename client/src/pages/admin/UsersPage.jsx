@@ -35,7 +35,8 @@ export default function UsersPage() {
     try {
       setLoading(true);
       const res = await api.get('/users');
-      setUsers(res);
+      // Hide platform superadmin accounts from tenant staff management view
+      setUsers(Array.isArray(res) ? res.filter((u) => u.role !== 'superadmin') : []);
     } catch (err) {
       showToast('error', err.message || 'Failed to load user list');
     } finally {

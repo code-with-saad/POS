@@ -130,7 +130,16 @@ export async function createOrder(req, res, next) {
       // REAL-WORLD INVENTORY DEDUCTION: deduct matching raw inventory stock if available
       try {
         const { Inventory } = await import('../models/Inventory.js');
-        const invItem = await Inventory.findOne({ name: { $regex: new RegExp(menuItem.name, 'i') } });
+        // Extract key words from menu item name e.g. "Zinger" from "Zinger Burger"
+        const words = menuItem.name.split(/\s+/).filter(w => w.length > 2);
+        let invItem = null;
+        for (const word of words) {
+          invItem = await Inventory.findOne({ name: { $regex: new RegExp(word, 'i') } });
+          if (invItem) break;
+        }
+        if (!invItem) {
+          invItem = await Inventory.findOne({ name: { $regex: new RegExp(menuItem.name, 'i') } });
+        }
         if (invItem && invItem.quantity > 0) {
           invItem.quantity = Math.max(0, invItem.quantity - qty);
           await invItem.save();

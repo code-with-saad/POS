@@ -22,8 +22,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // Wrong role — redirect to their home
-    return <Navigate to={user.role === 'admin' ? '/admin' : '/pos'} replace />;
+    return <Navigate to="/locked" replace />;
   }
 
   return children;

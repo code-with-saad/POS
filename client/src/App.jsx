@@ -19,6 +19,7 @@ import CustomersPage from './pages/admin/CustomersPage.jsx';
 import SuppliersPage from './pages/admin/SuppliersPage.jsx';
 import PurchasesPage from './pages/admin/PurchasesPage.jsx';
 import OrganizationsPage from './pages/admin/OrganizationsPage.jsx';
+import LockedPage from './pages/LockedPage.jsx';
 
 function RootRedirect() {
   const { user, loading } = useAuth();
@@ -35,6 +36,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<RootRedirect />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/locked" element={<LockedPage />} />
 
       {/* Super Admin Dedicated Portal */}
       <Route

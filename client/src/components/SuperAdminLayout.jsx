@@ -39,16 +39,22 @@ export default function SuperAdminLayout() {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="sidebar-user">
-            <span className="material-symbols-outlined text-amber-400">admin_panel_settings</span>
-            <div className="user-info">
-              <span className="user-name">{user?.name || 'Super Admin'}</span>
-              <span className="user-role uppercase text-amber-400">{user?.role}</span>
-            </div>
-          </div>
-          <button className="btn-logout" onClick={handleLogout} title="Logout">
-            <span className="material-symbols-outlined">logout</span>
+          <button className="sidebar-theme-btn" onClick={toggleTheme} title="Toggle theme">
+            <span className="material-symbols-outlined">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+            <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
+          <div className="sidebar-user-row">
+            <div className="user-profile">
+              <div className="avatar bg-amber-500 text-black font-bold">{user?.name?.[0] || 'S'}</div>
+              <div className="user-info">
+                <p className="user-name">{user?.name || 'Super Admin'}</p>
+                <p className="user-role uppercase text-amber-400">{user?.role || 'superadmin'}</p>
+              </div>
+            </div>
+            <button className="logout-btn flex items-center gap-1" onClick={handleLogout} title="Logout">
+              <span className="material-symbols-outlined text-sm">logout</span> Logout
+            </button>
+          </div>
         </div>
       </aside>
 
