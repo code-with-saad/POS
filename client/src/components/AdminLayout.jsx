@@ -22,6 +22,8 @@ export default function AdminLayout() {
     { path: '/admin/orders', label: 'Order History', icon: 'receipt_long' },
     { path: '/admin/reports', label: 'Reports', icon: 'analytics' },
     { path: '/admin/inventory', label: 'Inventory', icon: 'inventory_2' },
+    { path: '/admin/customers', label: 'Customers', icon: 'person' },
+    { path: '/admin/suppliers', label: 'Suppliers', icon: 'local_shipping' },
     { path: '/admin/categories', label: 'Categories', icon: 'category' },
     { path: '/admin/menu-items', label: 'Menu Items', icon: 'restaurant_menu' },
     { path: '/admin/users', label: 'Staff & Cashiers', icon: 'group' },
