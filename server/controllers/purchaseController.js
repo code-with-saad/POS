@@ -64,10 +64,19 @@ export async function createPurchase(req, res, next) {
 
     // Auto-update inventory quantities if matching item exists
     for (const pItem of formattedItems) {
-      const invItem = await Inventory.findOne({ name: { $regex: new RegExp(`^${pItem.itemName}$`, 'i') } });
+      // Escape special characters like (Zinger) in pItem.itemName for safe Regex matching
+      const safeName = pItem.itemName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      let invItem = await Inventory.findOne({ name: { $regex: new RegExp(`^${safeName}$`, 'i') } });
+      if (!invItem) {
+        // Fallback: match partial keywords (e.g. "Chicken Fillet")
+        const firstWord = pItem.itemName.split(/\s+/)[0];
+        if (firstWord && firstWord.length > 2) {
+          invItem = await Inventory.findOne({ name: { $regex: new RegExp(firstWord, 'i') } });
+        }
+      }
       if (invItem) {
-        invItem.quantity += pItem.quantity;
-        invItem.costPrice = pItem.unitCost;
+        invItem.quantity = (invItem.quantity || 0) + pItem.quantity;
+        if (pItem.unitCost > 0) invItem.costPrice = pItem.unitCost;
         await invItem.save();
       }
     }
