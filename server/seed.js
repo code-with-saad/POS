@@ -57,77 +57,6 @@ async function seed() {
     ]);
     const C = Object.fromEntries(cats.map(c => [c.name, c._id]));
 
-    // ── Menu Items ────────────────────────────────────────────────
-    console.log('Seeding Menu Items...');
-    await MenuItem.insertMany([
-      { name: 'Espresso', description: 'Rich single shot espresso', price: 350, category: C['Hot Beverages'], isAvailable: true, imageUrl: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=400&q=80' },
-      { name: 'Cappuccino', description: 'Espresso topped with steamed milk foam', price: 480, category: C['Hot Beverages'], isAvailable: true, imageUrl: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80' },
-      { name: 'Karak Chai', description: 'Strong traditional Pakistani spiced tea', price: 180, category: C['Hot Beverages'], isAvailable: true },
-      { name: 'Iced Latte', description: 'Chilled espresso with fresh milk over ice', price: 520, category: C['Cold Beverages'], isAvailable: true, imageUrl: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=400&q=80' },
-      { name: 'Mint Margarita', description: 'Refreshing mint and lemon slush', price: 390, category: C['Cold Beverages'], isAvailable: true },
-      { name: 'Peach Iced Tea', description: 'Fresh black tea infused with peach syrup', price: 420, category: C['Cold Beverages'], isAvailable: true },
-      {
-        name: 'Zinger Burger',
-        description: 'Crispy fried chicken fillet with mayo and lettuce',
-        price: 500,
-        originalPrice: 680,
-        isDeal: true,
-        category: C['Fast Food'],
-        isAvailable: true,
-        imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80',
-      },
-      { name: 'Club Sandwich', description: 'Triple decker chicken, egg and cheese sandwich', price: 750, category: C['Fast Food'], isAvailable: true },
-      {
-        name: 'Loaded Fries',
-        description: 'Crispy fries with cheese sauce & jalapenos — Happy Hour Deal!',
-        price: 420,
-        originalPrice: 550,
-        isDeal: true,
-        category: C['Fast Food'],
-        isAvailable: true,
-        imageUrl: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=400&q=80',
-      },
-      { name: 'Chicken Margherita Pizza', description: 'Fresh mozzarella, tomato sauce & grilled chicken', price: 990, category: C['Fast Food'], isAvailable: true, imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80' },
-      {
-        name: 'Rabri Kheer',
-        description: 'Traditional rich creamy rabri kheer dessert',
-        price: 350,
-        category: C['Desserts'],
-        isAvailable: true,
-        variants: [{ name: 'Single Portion', price: 350 }, { name: 'Half Kg', price: 650 }, { name: 'Full Kg', price: 1200 }],
-      },
-      {
-        name: 'Special Cold Coffee',
-        description: 'Blended espresso shake with ice cream',
-        price: 450,
-        category: C['Cold Beverages'],
-        isAvailable: true,
-        variants: [{ name: 'Regular (350ml)', price: 450 }, { name: 'Large (500ml)', price: 600 }],
-      },
-      { name: 'Chocolate Lava Cake', description: 'Warm cake with gooey chocolate center', price: 580, category: C['Desserts'], isAvailable: true, imageUrl: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=400&q=80' },
-    ]);
-
-    // ── Tables ────────────────────────────────────────────────────
-    console.log('Seeding Tables...');
-    await Table.insertMany([
-      { name: 'T1', section: 'Main Hall', capacity: 2, status: 'available' },
-      { name: 'T2', section: 'Main Hall', capacity: 4, status: 'available' },
-      { name: 'T3', section: 'Main Hall', capacity: 4, status: 'available' },
-      { name: 'T4', section: 'Main Hall', capacity: 6, status: 'available' },
-      { name: 'T5', section: 'Outdoor Terrace', capacity: 4, status: 'available' },
-      { name: 'T6', section: 'Outdoor Terrace', capacity: 2, status: 'available' },
-    ]);
-
-    // ── Settings ──────────────────────────────────────────────────
-    console.log('Seeding Settings...');
-    await Settings.create({
-      restaurantName: 'CafePOS',
-      address: 'Main Boulevard, Gulberg III, Lahore, Pakistan',
-      phone: '+92 42 111 222 333',
-      taxRatePercent: 16,
-      receiptFooter: 'Thank you for dining with us! Visit again soon.',
-    });
-
     // ── Suppliers ─────────────────────────────────────────────────
     console.log('Seeding Suppliers...');
     const suppliers = await Supplier.insertMany([
@@ -166,7 +95,7 @@ async function seed() {
 
     // ── Inventory ─────────────────────────────────────────────────
     console.log('Seeding Inventory...');
-    const inventory = await Inventory.insertMany([
+    const inventoryDocs = await Inventory.insertMany([
       {
         name: 'Full Cream Milk',
         sku: 'MLK-001',
@@ -244,6 +173,82 @@ async function seed() {
         supplier: metroSupplier._id,
       },
     ]);
+    const InvMap = Object.fromEntries(inventoryDocs.map(i => [i.name, i._id]));
+
+    // ── Menu Items ────────────────────────────────────────────────
+    console.log('Seeding Menu Items...');
+    await MenuItem.insertMany([
+      { name: 'Espresso', description: 'Rich single shot espresso', price: 350, category: C['Hot Beverages'], isAvailable: true, inventoryItem: InvMap['Espresso Beans (Arabica)'], ingredientQty: 1, imageUrl: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=400&q=80' },
+      { name: 'Cappuccino', description: 'Espresso topped with steamed milk foam', price: 480, category: C['Hot Beverages'], isAvailable: true, inventoryItem: InvMap['Full Cream Milk'], ingredientQty: 1, imageUrl: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80' },
+      { name: 'Karak Chai', description: 'Strong traditional Pakistani spiced tea', price: 180, category: C['Hot Beverages'], isAvailable: true, inventoryItem: InvMap['Full Cream Milk'], ingredientQty: 1 },
+      { name: 'Iced Latte', description: 'Chilled espresso with fresh milk over ice', price: 520, category: C['Cold Beverages'], isAvailable: true, inventoryItem: InvMap['Full Cream Milk'], ingredientQty: 1, imageUrl: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=400&q=80' },
+      { name: 'Mint Margarita', description: 'Refreshing mint and lemon slush', price: 390, category: C['Cold Beverages'], isAvailable: true },
+      { name: 'Peach Iced Tea', description: 'Fresh black tea infused with peach syrup', price: 420, category: C['Cold Beverages'], isAvailable: true },
+      {
+        name: 'Zinger Burger',
+        description: 'Crispy fried chicken fillet with mayo and lettuce',
+        price: 500,
+        originalPrice: 680,
+        isDeal: true,
+        category: C['Fast Food'],
+        isAvailable: true,
+        inventoryItem: InvMap['Chicken Fillet (Zinger)'],
+        ingredientQty: 1,
+        imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80',
+      },
+      { name: 'Club Sandwich', description: 'Triple decker chicken, egg and cheese sandwich', price: 750, category: C['Fast Food'], isAvailable: true, inventoryItem: InvMap['Chicken Fillet (Zinger)'], ingredientQty: 1 },
+      {
+        name: 'Loaded Fries',
+        description: 'Crispy fries with cheese sauce & jalapenos — Happy Hour Deal!',
+        price: 420,
+        originalPrice: 550,
+        isDeal: true,
+        category: C['Fast Food'],
+        isAvailable: true,
+        inventoryItem: InvMap['Frozen Fries'],
+        ingredientQty: 1,
+        imageUrl: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=400&q=80',
+      },
+      { name: 'Chicken Margherita Pizza', description: 'Fresh mozzarella, tomato sauce & grilled chicken', price: 990, category: C['Fast Food'], isAvailable: true, inventoryItem: InvMap['Mozzarella Cheese'], ingredientQty: 1, imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80' },
+      {
+        name: 'Rabri Kheer',
+        description: 'Traditional rich creamy rabri kheer dessert',
+        price: 350,
+        category: C['Desserts'],
+        isAvailable: true,
+        variants: [{ name: 'Single Portion', price: 350 }, { name: 'Half Kg', price: 650 }, { name: 'Full Kg', price: 1200 }],
+      },
+      {
+        name: 'Special Cold Coffee',
+        description: 'Blended espresso shake with ice cream',
+        price: 450,
+        category: C['Cold Beverages'],
+        isAvailable: true,
+        variants: [{ name: 'Regular (350ml)', price: 450 }, { name: 'Large (500ml)', price: 600 }],
+      },
+      { name: 'Chocolate Lava Cake', description: 'Warm cake with gooey chocolate center', price: 580, category: C['Desserts'], isAvailable: true, imageUrl: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=400&q=80' },
+    ]);
+
+    // ── Tables ────────────────────────────────────────────────────
+    console.log('Seeding Tables...');
+    await Table.insertMany([
+      { name: 'T1', section: 'Main Hall', capacity: 2, status: 'available' },
+      { name: 'T2', section: 'Main Hall', capacity: 4, status: 'available' },
+      { name: 'T3', section: 'Main Hall', capacity: 4, status: 'available' },
+      { name: 'T4', section: 'Main Hall', capacity: 6, status: 'available' },
+      { name: 'T5', section: 'Outdoor Terrace', capacity: 4, status: 'available' },
+      { name: 'T6', section: 'Outdoor Terrace', capacity: 2, status: 'available' },
+    ]);
+
+    // ── Settings ──────────────────────────────────────────────────
+    console.log('Seeding Settings...');
+    await Settings.create({
+      restaurantName: 'CafePOS',
+      address: 'Main Boulevard, Gulberg III, Lahore, Pakistan',
+      phone: '+92 42 111 222 333',
+      taxRatePercent: 16,
+      receiptFooter: 'Thank you for dining with us! Visit again soon.',
+    });
 
     // ── Purchase Orders ───────────────────────────────────────────
     console.log('Seeding Purchase Orders...');
@@ -331,8 +336,8 @@ async function seed() {
     console.log(`  Kitchen: username="kitchen" password="kitchen123"`);
     console.log('───────────────────────────────────────');
     console.log('  Demo Data Seeded:');
-    console.log('  ✓ 3 users (admin, cashier, kitchen)');
-    console.log('  ✓ 4 categories, 13 menu items (2 deals)');
+    console.log('  ✓ 5 users (superadmin, admin, manager, cashier, kitchen)');
+    console.log('  ✓ 4 categories, 13 menu items (directly linked to inventory)');
     console.log('  ✓ 6 tables');
     console.log('  ✓ 3 suppliers');
     console.log('  ✓ 7 inventory items');

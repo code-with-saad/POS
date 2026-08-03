@@ -46,6 +46,15 @@ const menuItemSchema = new mongoose.Schema(
         price: { type: Number, required: true, min: 0 },
       },
     ],
+    inventoryItem: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Inventory',
+      default: null,
+    },
+    ingredientQty: {
+      type: Number,
+      default: 1, // units deducted per sale
+    },
   },
   {
     timestamps: true,

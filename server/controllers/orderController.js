@@ -127,18 +127,29 @@ export async function createOrder(req, res, next) {
         sentAt: new Date(),
       });
 
-      // REAL-WORLD INVENTORY DEDUCTION: deduct matching raw inventory stock if available
+      // 100% RELIABLE INVENTORY DEDUCTION
       try {
         const { Inventory } = await import('../models/Inventory.js');
-        // Match inventory item if its name OR notes contains the menu item name (e.g., "Zinger Burger")
-        const safeName = menuItem.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        let invItem = await Inventory.findOne({
-          $or: [
-            { name: { $regex: new RegExp(safeName, 'i') } },
-            { notes: { $regex: new RegExp(safeName, 'i') } },
-          ],
-        });
+        let invItem = null;
+        
+        // Priority 1: Direct Linked Inventory ID
+        if (menuItem.inventoryItem) {
+          invItem = await Inventory.findById(menuItem.inventoryItem);
+        }
+
+        // Priority 2: Match by exact or partial name/notes keywords
         if (!invItem) {
+          const safeName = menuItem.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          invItem = await Inventory.findOne({
+            $or: [
+              { name: { $regex: new RegExp(safeName, 'i') } },
+              { notes: { $regex: new RegExp(safeName, 'i') } },
+            ],
+          });
+        }
+
+        if (!invItem) {
+          // Priority 3: First keyword search (e.g., "Zinger")
           const words = menuItem.name.split(/\s+/).filter(w => w.length > 2);
           for (const word of words) {
             const safeWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -151,8 +162,10 @@ export async function createOrder(req, res, next) {
             if (invItem) break;
           }
         }
+
         if (invItem) {
-          invItem.quantity = Math.max(0, invItem.quantity - qty);
+          const deductAmount = (menuItem.ingredientQty || 1) * qty;
+          invItem.quantity = Math.max(0, invItem.quantity - deductAmount);
           await invItem.save();
         }
       } catch (invErr) {
