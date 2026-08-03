@@ -17,6 +17,7 @@ import InventoryPage from './pages/admin/InventoryPage.jsx';
 import CustomersPage from './pages/admin/CustomersPage.jsx';
 import SuppliersPage from './pages/admin/SuppliersPage.jsx';
 import PurchasesPage from './pages/admin/PurchasesPage.jsx';
+import OrganizationsPage from './pages/admin/OrganizationsPage.jsx';
 
 function RootRedirect() {
   const { user, loading } = useAuth();
@@ -54,6 +55,7 @@ export default function App() {
         <Route path="customers" element={<CustomersPage />} />
         <Route path="suppliers" element={<SuppliersPage />} />
         <Route path="purchases" element={<PurchasesPage />} />
+        <Route path="organizations" element={<OrganizationsPage />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Route>
 

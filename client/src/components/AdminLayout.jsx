@@ -28,6 +28,7 @@ export default function AdminLayout() {
     { path: '/admin/categories', label: 'Categories', icon: 'category' },
     { path: '/admin/menu-items', label: 'Menu Items', icon: 'restaurant_menu' },
     { path: '/admin/users', label: 'Staff & Cashiers', icon: 'group' },
+    { path: '/admin/organizations', label: 'Tenants / Orgs', icon: 'corporate_fare' },
     { path: '/admin/settings', label: 'Settings', icon: 'settings' },
   ];
 
