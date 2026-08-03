@@ -219,6 +219,7 @@ export async function createOrder(req, res, next) {
           console.warn('Customer metric update warning:', cErr.message);
         }
       }
+    } // end else (new order)
 
     const populated = await finalOrder.populate([
       { path: 'table', select: 'name section' },
