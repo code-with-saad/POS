@@ -34,17 +34,21 @@ export default function InventoryPage() {
 
   useEffect(() => {
     fetchInventory();
+    const interval = setInterval(() => {
+      fetchInventory(true);
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  async function fetchInventory() {
+  async function fetchInventory(silent = false) {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const data = await api.get('/inventory');
       setItems(data);
     } catch (err) {
-      showToast('error', err.message || 'Failed to load inventory');
+      if (!silent) showToast('error', err.message || 'Failed to load inventory');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }
 

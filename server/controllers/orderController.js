@@ -323,6 +323,36 @@ export async function updateOrderStatus(req, res, next) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
+    // Deduct inventory stock if order is set to completed
+    if (status === 'completed' && order.status !== 'completed') {
+      try {
+        const { Inventory } = await import('../models/Inventory.js');
+        const { MenuItem } = await import('../models/MenuItem.js');
+        for (const item of order.items) {
+          const menuItem = await MenuItem.findById(item.menuItem);
+          if (menuItem) {
+            let invItem = menuItem.inventoryItem ? await Inventory.findById(menuItem.inventoryItem) : null;
+            if (!invItem) {
+              const safeName = menuItem.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              invItem = await Inventory.findOne({
+                $or: [
+                  { name: { $regex: new RegExp(safeName, 'i') } },
+                  { notes: { $regex: new RegExp(safeName, 'i') } },
+                ],
+              });
+            }
+            if (invItem) {
+              const deductAmount = (menuItem.ingredientQty || 1) * (item.quantity || 1);
+              invItem.quantity = Math.max(0, invItem.quantity - deductAmount);
+              await invItem.save();
+            }
+          }
+        }
+      } catch (invErr) {
+        console.warn('Status update inventory deduction warning:', invErr.message);
+      }
+    }
+
     order.status = status;
     if (status === 'completed' || status === 'cancelled') {
       order.completedAt = new Date();
