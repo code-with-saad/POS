@@ -386,15 +386,77 @@ export default function MenuItemsPage() {
                 </div>
 
                 <div className="form-group">
-                  <label>Image URL (Optional)</label>
-                  <input
-                    type="text"
-                    placeholder="https://..."
-                    value={formData.imageUrl || ''}
-                    onChange={(e) =>
-                      setFormData((f) => ({ ...f, imageUrl: e.target.value }))
-                    }
-                  />
+                  <label>Image (URL or Local File Upload)</label>
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="text"
+                      placeholder="https://... or paste image URL"
+                      value={formData.imageUrl || ''}
+                      onChange={(e) =>
+                        setFormData((f) => ({ ...f, imageUrl: e.target.value }))
+                      }
+                    />
+                    <div className="flex items-center gap-2">
+                      <label className="btn-secondary text-xs cursor-pointer inline-flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">upload_file</span>
+                        Upload Local Image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            if (file.size > 2 * 1024 * 1024) {
+                              showToast('error', 'Image size should be less than 2MB');
+                              return;
+                            }
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setFormData((f) => ({ ...f, imageUrl: reader.result }));
+                              showToast('success', 'Image file uploaded successfully');
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                        />
+                      </label>
+                      {formData.imageUrl && (
+                        <button
+                          type="button"
+                          className="btn-secondary text-xs text-red-400"
+                          onClick={() => setFormData((f) => ({ ...f, imageUrl: '' }))}
+                        >
+                          Clear Image
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Material Icon Quick Picker */}
+              <div className="form-group mb-3">
+                <label className="text-xs text-muted">Quick Material Icon Picker (if no image)</label>
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {[
+                    'restaurant', 'local_bar', 'local_cafe', 'bakery_dining', 'local_pizza',
+                    'fastfood', 'dinner_dining', 'icecream', 'ramen_dining', 'set_meal',
+                    'local_drink', 'liquor', 'cake', 'lunch_dining', 'kebab_dining'
+                  ].map((iconName) => (
+                    <button
+                      key={iconName}
+                      type="button"
+                      className={`p-1.5 rounded border text-sm flex items-center justify-center transition-all ${
+                        formData.imageUrl === `icon:${iconName}`
+                          ? 'border-amber-500 bg-amber-500/20 text-amber-400'
+                          : 'border-zinc-700 hover:border-zinc-500 text-zinc-300'
+                      }`}
+                      onClick={() => setFormData((f) => ({ ...f, imageUrl: `icon:${iconName}` }))}
+                      title={iconName}
+                    >
+                      <span className="material-symbols-outlined text-lg">{iconName}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
 

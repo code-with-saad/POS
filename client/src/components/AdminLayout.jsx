@@ -15,16 +15,16 @@ export default function AdminLayout() {
   }
 
   const navItems = [
-    { path: '/admin', label: 'Dashboard', icon: '📊', end: true },
-    { path: '/pos', label: 'POS Terminal', icon: '🖥️' },
-    { path: '/admin/tables', label: 'Tables', icon: '🪑' },
-    { path: '/kitchen', label: 'Kitchen View', icon: '👨‍🍳' },
-    { path: '/admin/orders', label: 'Order History', icon: '🧾' },
-    { path: '/admin/reports', label: 'Reports', icon: '📈' },
-    { path: '/admin/categories', label: 'Categories', icon: '📁' },
-    { path: '/admin/menu-items', label: 'Menu Items', icon: '🍔' },
-    { path: '/admin/users', label: 'Staff & Cashiers', icon: '👥' },
-    { path: '/admin/settings', label: 'Settings', icon: '⚙️' },
+    { path: '/admin', label: 'Dashboard', icon: 'dashboard', end: true },
+    { path: '/pos', label: 'POS Terminal', icon: 'point_of_sale' },
+    { path: '/admin/tables', label: 'Tables', icon: 'table_restaurant' },
+    { path: '/kitchen', label: 'Kitchen View', icon: 'soup_kitchen' },
+    { path: '/admin/orders', label: 'Order History', icon: 'receipt_long' },
+    { path: '/admin/reports', label: 'Reports', icon: 'analytics' },
+    { path: '/admin/categories', label: 'Categories', icon: 'category' },
+    { path: '/admin/menu-items', label: 'Menu Items', icon: 'restaurant_menu' },
+    { path: '/admin/users', label: 'Staff & Cashiers', icon: 'group' },
+    { path: '/admin/settings', label: 'Settings', icon: 'settings' },
   ];
 
   return (
@@ -32,14 +32,14 @@ export default function AdminLayout() {
       <aside className="admin-sidebar">
         <div className="sidebar-brand">
           <div className="flex items-center gap-2">
-            <span className="brand-icon">☕</span>
+            <span className="material-symbols-outlined brand-icon">local_cafe</span>
             <div>
               <h1 className="brand-name">{settings?.restaurantName || 'CafePOS'}</h1>
               <span className="brand-badge">ADMIN PANEL</span>
             </div>
           </div>
           <button className="sidebar-theme-btn-top" onClick={toggleTheme} title="Toggle theme">
-            {theme === 'dark' ? '☀️' : '🌙'}
+            <span className="material-symbols-outlined">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
           </button>
         </div>
 
@@ -53,7 +53,7 @@ export default function AdminLayout() {
                 `nav-link ${isActive ? 'nav-link-active' : ''}`
               }
             >
-              <span className="nav-icon">{item.icon}</span>
+              <span className="material-symbols-outlined nav-icon">{item.icon}</span>
               <span className="nav-label">{item.label}</span>
             </NavLink>
           ))}
@@ -61,7 +61,7 @@ export default function AdminLayout() {
 
         <div className="sidebar-footer">
           <button className="sidebar-theme-btn" onClick={toggleTheme} title="Toggle theme">
-            <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+            <span className="material-symbols-outlined">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
             <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
           <div className="sidebar-user-row">
@@ -72,8 +72,8 @@ export default function AdminLayout() {
                 <p className="user-role">{user?.role}</p>
               </div>
             </div>
-            <button className="logout-btn" onClick={handleLogout} title="Logout">
-              🚪 Logout
+            <button className="logout-btn flex items-center gap-1" onClick={handleLogout} title="Logout">
+              <span className="material-symbols-outlined text-sm">logout</span> Logout
             </button>
           </div>
         </div>

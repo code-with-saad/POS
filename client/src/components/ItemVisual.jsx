@@ -3,40 +3,29 @@ import { useState } from 'react';
 /**
  * Returns a relevant emoji/icon based on item name and category name
  */
-function getFallbackIcon(itemName = '', categoryName = '') {
+function getFallbackMaterialIcon(itemName = '', categoryName = '') {
   const name = itemName ? String(itemName).toLowerCase() : '';
   const cat = categoryName ? String(categoryName).toLowerCase() : '';
 
-  // Name keyword matches
-  if (name.includes('espresso')) return '☕';
-  if (name.includes('cappuccino') || name.includes('latte') || name.includes('mocha')) return '☕';
-  if (name.includes('chai') || name.includes('tea')) return '🫖';
-  if (name.includes('margarita') || name.includes('slush') || name.includes('mojito')) return '🍸';
-  if (name.includes('iced') || name.includes('cold') || name.includes('shake') || name.includes('smoothie')) return '🥤';
-  if (name.includes('burger') || name.includes('zinger')) return '🍔';
-  if (name.includes('sandwich') || name.includes('club')) return '🥪';
-  if (name.includes('pizza')) return '🍕';
-  if (name.includes('fries') || name.includes('chips')) return '🍟';
-  if (name.includes('cake') || name.includes('brownie')) return '🍰';
-  if (name.includes('ice cream') || name.includes('gelato')) return '🍨';
-  if (name.includes('wrap') || name.includes('shawarma')) return '🌯';
-  if (name.includes('pasta') || name.includes('spaghetti')) return '🍝';
-  if (name.includes('wing') || name.includes('nugget') || name.includes('chicken')) return '🍗';
+  if (name.includes('espresso') || name.includes('cappuccino') || name.includes('latte') || name.includes('coffee') || name.includes('chai')) return 'local_cafe';
+  if (name.includes('tea')) return 'emoji_food_beverage';
+  if (name.includes('mojito') || name.includes('slush') || name.includes('margarita')) return 'local_bar';
+  if (name.includes('iced') || name.includes('cold') || name.includes('shake') || name.includes('smoothie') || name.includes('drink')) return 'local_drink';
+  if (name.includes('burger') || name.includes('zinger') || name.includes('sandwich')) return 'fastfood';
+  if (name.includes('pizza')) return 'local_pizza';
+  if (name.includes('fries') || name.includes('snack')) return 'bakery_dining';
+  if (name.includes('cake') || name.includes('brownie') || name.includes('dessert')) return 'cake';
+  if (name.includes('ice cream') || name.includes('gelato')) return 'icecream';
+  if (name.includes('pasta') || name.includes('ramen') || name.includes('noodle')) return 'ramen_dining';
+  if (name.includes('chicken') || name.includes('meat') || name.includes('dinner')) return 'dinner_dining';
 
-  // Category fallback matches
-  if (cat.includes('hot') || cat.includes('beverage')) return '☕';
-  if (cat.includes('cold') || cat.includes('drink')) return '🥤';
-  if (cat.includes('food') || cat.includes('fast') || cat.includes('main')) return '🍔';
-  if (cat.includes('dessert') || cat.includes('sweet')) return '🍰';
-  if (cat.includes('snack') || cat.includes('side')) return '🍿';
+  if (cat.includes('beverage') || cat.includes('drink')) return 'local_cafe';
+  if (cat.includes('food') || cat.includes('main')) return 'restaurant';
+  if (cat.includes('dessert') || cat.includes('sweet')) return 'cake';
 
-  return '🍽️';
+  return 'restaurant_menu';
 }
 
-/**
- * Renders product image if valid imageUrl is provided,
- * otherwise renders a styled container with fallback icon by name/category.
- */
 export default function ItemVisual({ imageUrl, itemName, categoryName, className = 'item-visual-box' }) {
   const [imgError, setImgError] = useState(false);
   const [prevUrl, setPrevUrl] = useState(imageUrl);
@@ -46,8 +35,18 @@ export default function ItemVisual({ imageUrl, itemName, categoryName, className
     setImgError(false);
   }
 
+  // Support "icon:icon_name" strings from Material Icon Picker
+  if (imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('icon:')) {
+    const iconName = imageUrl.replace('icon:', '');
+    return (
+      <div className={`${className} item-visual-icon-bg flex items-center justify-center`}>
+        <span className="material-symbols-outlined text-amber-400" style={{ fontSize: '2rem' }}>{iconName}</span>
+      </div>
+    );
+  }
+
   const hasValidImage = Boolean(imageUrl && typeof imageUrl === 'string' && imageUrl.trim().length > 0 && !imgError);
-  const icon = getFallbackIcon(itemName, categoryName);
+  const icon = getFallbackMaterialIcon(itemName, categoryName);
 
   if (hasValidImage) {
     return (
@@ -64,8 +63,8 @@ export default function ItemVisual({ imageUrl, itemName, categoryName, className
   }
 
   return (
-    <div className={`${className} item-visual-icon-bg`}>
-      <span className="item-visual-emoji">{icon}</span>
+    <div className={`${className} item-visual-icon-bg flex items-center justify-center`}>
+      <span className="material-symbols-outlined text-amber-400" style={{ fontSize: '1.8rem' }}>{icon}</span>
     </div>
   );
 }
