@@ -12,6 +12,7 @@ import UsersPage from './pages/admin/UsersPage.jsx';
 import KitchenViewPage from './pages/KitchenViewPage.jsx';
 import POS from './pages/POS.jsx';
 import AdminSettingsPage from './pages/AdminSettingsPage.jsx';
+import ReportsPage from './pages/admin/ReportsPage.jsx';
 
 function RootRedirect() {
   const { user, loading } = useAuth();
@@ -42,6 +43,7 @@ export default function App() {
         <Route path="orders" element={<OrdersHistoryPage />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="settings" element={<AdminSettingsPage />} />
+        <Route path="reports" element={<ReportsPage />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Route>
 
