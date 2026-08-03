@@ -177,7 +177,7 @@ export async function getCashierReport(req, res, next) {
           as: 'user',
         },
       },
-      { $unwind: { path: '$user', preserveNullAndEmpty: true } },
+      { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
       {
         $project: {
           _id: 1,
