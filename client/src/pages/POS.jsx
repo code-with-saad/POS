@@ -529,9 +529,12 @@ export default function POS() {
                 return (
                   <div
                     key={item._id}
-                    className={`menu-card ${!item.isAvailable ? 'menu-card-unavailable' : ''}`}
+                    className={`menu-card ${!item.isAvailable ? 'menu-card-unavailable' : ''} ${item.isDeal ? 'menu-card-deal' : ''}`}
                     onClick={() => handleItemClick(item)}
                   >
+                    {item.isDeal && (
+                      <span className="deal-badge">🔥 DEAL</span>
+                    )}
                     <ItemVisual
                       imageUrl={item.imageUrl}
                       itemName={item.name}
@@ -541,9 +544,19 @@ export default function POS() {
 
                     <div className="menu-card-header">
                       <span className="menu-card-name">{item.name}</span>
-                      <span className="menu-card-price">
-                        {hasVariants ? `From Rs. ${Math.min(...item.variants.map(v => v.price))}` : `Rs. ${item.price}`}
-                      </span>
+                      <div className="menu-card-price-block">
+                        {item.originalPrice && item.originalPrice > item.price && (
+                          <span className="menu-card-original-price">Rs. {item.originalPrice}</span>
+                        )}
+                        <span className="menu-card-price">
+                          {hasVariants ? `From Rs. ${Math.min(...item.variants.map(v => v.price))}` : `Rs. ${item.price}`}
+                        </span>
+                        {item.originalPrice && item.originalPrice > item.price && (
+                          <span className="deal-discount-pct">
+                            -{Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}%
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {item.description && (

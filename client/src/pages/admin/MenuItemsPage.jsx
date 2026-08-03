@@ -78,6 +78,8 @@ export default function MenuItemsPage() {
       name: '',
       description: '',
       price: '',
+      originalPrice: '',
+      isDeal: false,
       category: categories[0]?._id || '',
       isAvailable: true,
       imageUrl: '',
@@ -92,6 +94,8 @@ export default function MenuItemsPage() {
       name: item.name,
       description: item.description || '',
       price: item.price,
+      originalPrice: item.originalPrice || '',
+      isDeal: item.isDeal || false,
       category: item.category?._id || item.category || '',
       isAvailable: item.isAvailable,
       imageUrl: item.imageUrl || '',
@@ -372,10 +376,10 @@ export default function MenuItemsPage() {
                 </div>
 
                 <div className="form-group">
-                  <label>Price (PKR) *</label>
+                  <label>Sale / Deal Price (PKR) *</label>
                   <input
                     type="number"
-                    placeholder="e.g. 680"
+                    placeholder="e.g. 400"
                     min="0"
                     value={formData.price}
                     onChange={(e) =>
@@ -383,6 +387,30 @@ export default function MenuItemsPage() {
                     }
                     required
                   />
+                </div>
+
+                <div className="form-group">
+                  <label>Original Price (PKR) (If on Discount/Offer)</label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 500 (Shows strikethrough)"
+                    min="0"
+                    value={formData.originalPrice || ''}
+                    onChange={(e) =>
+                      setFormData((f) => ({ ...f, originalPrice: e.target.value }))
+                    }
+                  />
+                </div>
+
+                <div className="form-group flex items-center gap-2 pt-6">
+                  <label className="checkbox-label flex items-center gap-2 font-semibold text-amber-400 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.isDeal || false}
+                      onChange={(e) => setFormData((f) => ({ ...f, isDeal: e.target.checked }))}
+                    />
+                    🔥 Tag as Special Deal / Combo Offer
+                  </label>
                 </div>
 
                 <div className="form-group">

@@ -126,6 +126,18 @@ export async function createOrder(req, res, next) {
         round: currentRound,
         sentAt: new Date(),
       });
+
+      // REAL-WORLD INVENTORY DEDUCTION: deduct matching raw inventory stock if available
+      try {
+        const { Inventory } = await import('../models/Inventory.js');
+        const invItem = await Inventory.findOne({ name: { $regex: new RegExp(menuItem.name, 'i') } });
+        if (invItem && invItem.quantity > 0) {
+          invItem.quantity = Math.max(0, invItem.quantity - qty);
+          await invItem.save();
+        }
+      } catch (invErr) {
+        console.warn('Inventory deduction warning:', invErr.message);
+      }
     }
 
     let finalOrder;
@@ -186,12 +198,27 @@ export async function createOrder(req, res, next) {
         cashier: req.user._id,
       });
 
-      // Mark table occupied if dine-in and not yet completed
-      if (orderType === 'dine-in' && table) {
-        table.status = initialStatus === 'completed' ? 'available' : 'occupied';
-        await table.save();
+      // Attach customer reference if provided
+      if (req.body.customerId) {
+        finalOrder.customer = req.body.customerId;
+        await finalOrder.save();
       }
-    }
+
+      // Update customer loyalty & spending stats if completed & customerId is present
+      if (finalOrder.status === 'completed' && req.body.customerId) {
+        try {
+          const { Customer } = await import('../models/Customer.js');
+          const cust = await Customer.findById(req.body.customerId);
+          if (cust) {
+            cust.totalSpent = (cust.totalSpent || 0) + finalOrder.total;
+            cust.totalOrders = (cust.totalOrders || 0) + 1;
+            cust.loyaltyPoints = (cust.loyaltyPoints || 0) + Math.floor(finalOrder.total / 100);
+            await cust.save();
+          }
+        } catch (cErr) {
+          console.warn('Customer metric update warning:', cErr.message);
+        }
+      }
 
     const populated = await finalOrder.populate([
       { path: 'table', select: 'name section' },

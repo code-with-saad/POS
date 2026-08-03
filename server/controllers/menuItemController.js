@@ -20,7 +20,7 @@ export async function getMenuItems(req, res, next) {
 /** POST /api/menu-items — Admin only */
 export async function createMenuItem(req, res, next) {
   try {
-    const { name, description, price, category, isAvailable, imageUrl, variants } = req.body;
+    const { name, description, price, originalPrice, isDeal, category, isAvailable, imageUrl, variants } = req.body;
     if (!name || price === undefined || !category) {
       return res
         .status(400)
@@ -31,6 +31,8 @@ export async function createMenuItem(req, res, next) {
       name: String(name).trim(),
       description: description ? String(description).trim() : '',
       price: Number(price) || 0,
+      originalPrice: originalPrice ? Number(originalPrice) : null,
+      isDeal: Boolean(isDeal),
       category,
       isAvailable: isAvailable !== undefined ? Boolean(isAvailable) : true,
       imageUrl: imageUrl ? String(imageUrl).trim() : '',
@@ -47,7 +49,7 @@ export async function createMenuItem(req, res, next) {
 /** PUT /api/menu-items/:id — Admin only */
 export async function updateMenuItem(req, res, next) {
   try {
-    const { name, description, price, category, isAvailable, imageUrl, variants } = req.body;
+    const { name, description, price, originalPrice, isDeal, category, isAvailable, imageUrl, variants } = req.body;
     const item = await MenuItem.findById(req.params.id);
 
     if (!item) {
@@ -57,6 +59,8 @@ export async function updateMenuItem(req, res, next) {
     if (name !== undefined) item.name = String(name).trim();
     if (description !== undefined) item.description = String(description).trim();
     if (price !== undefined) item.price = Number(price) || 0;
+    if (originalPrice !== undefined) item.originalPrice = originalPrice ? Number(originalPrice) : null;
+    if (isDeal !== undefined) item.isDeal = Boolean(isDeal);
     if (category) item.category = category;
     if (isAvailable !== undefined) item.isAvailable = Boolean(isAvailable);
     if (imageUrl !== undefined) item.imageUrl = String(imageUrl).trim();

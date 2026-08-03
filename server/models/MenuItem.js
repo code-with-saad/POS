@@ -17,6 +17,15 @@ const menuItemSchema = new mongoose.Schema(
       required: [true, 'Price is required'],
       min: [0, 'Price cannot be negative'],
     },
+    originalPrice: {
+      type: Number,
+      default: null,
+      min: [0, 'Original price cannot be negative'],
+    },
+    isDeal: {
+      type: Boolean,
+      default: false,
+    },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Category',
