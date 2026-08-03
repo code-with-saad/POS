@@ -130,19 +130,28 @@ export async function createOrder(req, res, next) {
       // REAL-WORLD INVENTORY DEDUCTION: deduct matching raw inventory stock if available
       try {
         const { Inventory } = await import('../models/Inventory.js');
-        // Extract key words from menu item name e.g. "Zinger" from "Zinger Burger"
-        const words = menuItem.name.split(/\s+/).filter(w => w.length > 2);
-        let invItem = null;
-        for (const word of words) {
-          const safeWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          invItem = await Inventory.findOne({ name: { $regex: new RegExp(safeWord, 'i') } });
-          if (invItem) break;
-        }
+        // Match inventory item if its name OR notes contains the menu item name (e.g., "Zinger Burger")
+        const safeName = menuItem.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        let invItem = await Inventory.findOne({
+          $or: [
+            { name: { $regex: new RegExp(safeName, 'i') } },
+            { notes: { $regex: new RegExp(safeName, 'i') } },
+          ],
+        });
         if (!invItem) {
-          const safeFullName = menuItem.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          invItem = await Inventory.findOne({ name: { $regex: new RegExp(safeFullName, 'i') } });
+          const words = menuItem.name.split(/\s+/).filter(w => w.length > 2);
+          for (const word of words) {
+            const safeWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            invItem = await Inventory.findOne({
+              $or: [
+                { name: { $regex: new RegExp(safeWord, 'i') } },
+                { notes: { $regex: new RegExp(safeWord, 'i') } },
+              ],
+            });
+            if (invItem) break;
+          }
         }
-        if (invItem && invItem.quantity > 0) {
+        if (invItem) {
           invItem.quantity = Math.max(0, invItem.quantity - qty);
           await invItem.save();
         }
