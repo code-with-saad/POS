@@ -18,7 +18,9 @@ function RootRedirect() {
   const { user, loading } = useAuth();
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
-  return <Navigate to={user.role === 'admin' ? '/admin' : '/pos'} replace />;
+  if (user.role === 'admin') return <Navigate to="/admin" replace />;
+  if (user.role === 'kitchen') return <Navigate to="/kitchen" replace />;
+  return <Navigate to="/pos" replace />;
 }
 
 export default function App() {
@@ -51,7 +53,7 @@ export default function App() {
       <Route
         path="/kitchen"
         element={
-          <ProtectedRoute allowedRoles={['cashier', 'admin']}>
+          <ProtectedRoute allowedRoles={['kitchen', 'cashier', 'admin']}>
             <KitchenViewPage />
           </ProtectedRoute>
         }

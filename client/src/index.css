@@ -737,13 +737,16 @@ input:checked + .slider:before {
   border-radius: var(--radius);
   width: 100%;
   max-width: 460px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 24px 64px rgba(0,0,0,0.8);
   animation: slideUp 0.3s ease;
   overflow: hidden;
 }
 
 .modal-lg {
-  max-width: 600px;
+  max-width: 650px;
 }
 
 .modal-header {
@@ -752,6 +755,7 @@ input:checked + .slider:before {
   justify-content: space-between;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
 }
 
 .modal-header h3 {
@@ -772,6 +776,8 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .form-grid {

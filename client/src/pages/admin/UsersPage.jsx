@@ -292,6 +292,7 @@ export default function UsersPage() {
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                 >
                   <option value="cashier">Cashier</option>
+                  <option value="kitchen">Kitchen Staff (KDS Only)</option>
                   <option value="admin">System Admin</option>
                 </select>
               </div>
@@ -369,6 +370,7 @@ export default function UsersPage() {
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                 >
                   <option value="cashier">Cashier</option>
+                  <option value="kitchen">Kitchen Staff (KDS Only)</option>
                   <option value="admin">System Admin</option>
                 </select>
               </div>
