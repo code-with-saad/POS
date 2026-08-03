@@ -14,23 +14,24 @@ export default function AdminLayout() {
     navigate('/login');
   }
 
-  const navItems = [
-    { path: '/admin', label: 'Dashboard', icon: 'dashboard', end: true },
-    { path: '/pos', label: 'POS Terminal', icon: 'point_of_sale' },
-    { path: '/admin/tables', label: 'Tables', icon: 'table_restaurant' },
-    { path: '/kitchen', label: 'Kitchen View', icon: 'soup_kitchen' },
-    { path: '/admin/orders', label: 'Order History', icon: 'receipt_long' },
-    { path: '/admin/reports', label: 'Reports', icon: 'analytics' },
-    { path: '/admin/inventory', label: 'Inventory', icon: 'inventory_2' },
-    { path: '/admin/customers', label: 'Customers', icon: 'person' },
-    { path: '/admin/suppliers', label: 'Suppliers', icon: 'local_shipping' },
-    { path: '/admin/purchases', label: 'Purchasing', icon: 'shopping_cart' },
-    { path: '/admin/categories', label: 'Categories', icon: 'category' },
-    { path: '/admin/menu-items', label: 'Menu Items', icon: 'restaurant_menu' },
-    { path: '/admin/users', label: 'Staff & Cashiers', icon: 'group' },
-    { path: '/admin/organizations', label: 'Tenants / Orgs', icon: 'corporate_fare' },
-    { path: '/admin/settings', label: 'Settings', icon: 'settings' },
+  const allNavItems = [
+    { path: '/admin', label: 'Dashboard', icon: 'dashboard', end: true, roles: ['admin', 'manager'] },
+    { path: '/pos', label: 'POS Terminal', icon: 'point_of_sale', roles: ['admin', 'manager'] },
+    { path: '/admin/tables', label: 'Tables', icon: 'table_restaurant', roles: ['admin', 'manager'] },
+    { path: '/kitchen', label: 'Kitchen View', icon: 'soup_kitchen', roles: ['admin', 'manager'] },
+    { path: '/admin/orders', label: 'Order History', icon: 'receipt_long', roles: ['admin', 'manager'] },
+    { path: '/admin/reports', label: 'Reports', icon: 'analytics', roles: ['admin', 'manager'] },
+    { path: '/admin/inventory', label: 'Inventory', icon: 'inventory_2', roles: ['admin', 'manager'] },
+    { path: '/admin/customers', label: 'Customers', icon: 'person', roles: ['admin', 'manager'] },
+    { path: '/admin/suppliers', label: 'Suppliers', icon: 'local_shipping', roles: ['admin', 'manager'] },
+    { path: '/admin/purchases', label: 'Purchasing', icon: 'shopping_cart', roles: ['admin', 'manager'] },
+    { path: '/admin/categories', label: 'Categories', icon: 'category', roles: ['admin', 'manager'] },
+    { path: '/admin/menu-items', label: 'Menu Items', icon: 'restaurant_menu', roles: ['admin', 'manager'] },
+    { path: '/admin/users', label: 'Staff & Cashiers', icon: 'group', roles: ['admin'] },
+    { path: '/admin/settings', label: 'Settings', icon: 'settings', roles: ['admin'] },
   ];
+
+  const navItems = allNavItems.filter((item) => item.roles.includes(user?.role || 'admin'));
 
   return (
     <div className="admin-layout">

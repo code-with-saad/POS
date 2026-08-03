@@ -33,13 +33,17 @@ async function seed() {
 
     // ── Users ──────────────────────────────────────────────────────
     console.log('Seeding Users...');
-    const [adminHash, cashierHash, kitchenHash] = await Promise.all([
+    const [superHash, adminHash, managerHash, cashierHash, kitchenHash] = await Promise.all([
+      bcrypt.hash('super123', 10),
       bcrypt.hash('admin123', 10),
+      bcrypt.hash('manager123', 10),
       bcrypt.hash('cashier123', 10),
       bcrypt.hash('kitchen123', 10),
     ]);
 
-    const admin = await User.create({ name: 'System Admin', username: 'admin', password: adminHash, role: 'admin', isActive: true });
+    await User.create({ name: 'Platform Owner', username: 'superadmin', password: superHash, role: 'superadmin', isActive: true });
+    const admin = await User.create({ name: 'Cafe Admin', username: 'admin', password: adminHash, role: 'admin', isActive: true });
+    await User.create({ name: 'Restaurant Manager', username: 'manager', password: managerHash, role: 'manager', isActive: true });
     const cashier = await User.create({ name: 'Ahmed (Cashier)', username: 'cashier', password: cashierHash, role: 'cashier', isActive: true });
     await User.create({ name: 'Kitchen Staff', username: 'kitchen', password: kitchenHash, role: 'kitchen', isActive: true });
 

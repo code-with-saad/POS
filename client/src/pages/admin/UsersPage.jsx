@@ -293,6 +293,7 @@ export default function UsersPage() {
                 >
                   <option value="cashier">Cashier</option>
                   <option value="kitchen">Kitchen Staff (KDS Only)</option>
+                  <option value="manager">Manager</option>
                   <option value="admin">System Admin</option>
                 </select>
               </div>
@@ -371,6 +372,7 @@ export default function UsersPage() {
                 >
                   <option value="cashier">Cashier</option>
                   <option value="kitchen">Kitchen Staff (KDS Only)</option>
+                  <option value="manager">Manager</option>
                   <option value="admin">System Admin</option>
                 </select>
               </div>

@@ -4,8 +4,8 @@ import { getOrganizations, createOrganization } from '../controllers/organizatio
 
 const router = Router();
 
-// Allow superadmin or admin to manage/view organizations
-router.use(protect, requireRole('superadmin', 'admin'));
+// Only superadmin can manage/view organizations
+router.use(protect, requireRole('superadmin'));
 
 router.get('/', getOrganizations);
 router.post('/', createOrganization);
