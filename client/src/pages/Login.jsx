@@ -81,7 +81,7 @@ export default function Login() {
 
           <div className="form-group">
             <label htmlFor="login-password">Password</label>
-            <div style={{ position: 'relative' }}>
+            <div className="password-input-wrap">
               <input
                 id="login-password"
                 type={showPassword ? 'text' : 'password'}
@@ -89,29 +89,15 @@ export default function Login() {
                 placeholder="Enter password"
                 value={form.password}
                 onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                style={{ paddingRight: '2.8rem' }}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
-                style={{
-                  position: 'absolute',
-                  right: '0.75rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#a1a1aa',
-                  padding: '0',
-                  lineHeight: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
+                className="password-eye-btn"
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>
+                <span className="material-symbols-outlined">
                   {showPassword ? 'visibility_off' : 'visibility'}
                 </span>
               </button>

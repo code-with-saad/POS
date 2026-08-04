@@ -184,7 +184,7 @@ export default function OrganizationsPage() {
 
                 <div className="form-group">
                   <label>Admin Password *</label>
-                  <div style={{ position: 'relative' }}>
+                  <div className="password-input-wrap">
                     <input
                       type={showPass ? 'text' : 'password'}
                       required
@@ -192,15 +192,9 @@ export default function OrganizationsPage() {
                       placeholder="Minimum 6 characters"
                       value={form.adminPassword}
                       onChange={(e) => handleChange('adminPassword', e.target.value)}
-                      style={{ paddingRight: '2.8rem' }}
                     />
-                    <button type="button" onClick={() => setShowPass((v) => !v)}
-                      style={{
-                        position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)',
-                        background: 'none', border: 'none', cursor: 'pointer', color: '#71717a',
-                        padding: 0, display: 'flex', alignItems: 'center',
-                      }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>
+                    <button type="button" className="password-eye-btn" onClick={() => setShowPass((v) => !v)}>
+                      <span className="material-symbols-outlined">
                         {showPass ? 'visibility_off' : 'visibility'}
                       </span>
                     </button>
