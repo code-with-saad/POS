@@ -24,17 +24,21 @@ export default function CustomersPage() {
 
   useEffect(() => {
     fetchCustomers();
+    const interval = setInterval(() => {
+      fetchCustomers(true);
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  async function fetchCustomers() {
+  async function fetchCustomers(silent = false) {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const data = await api.get('/customers');
       setCustomers(data);
     } catch (err) {
-      showToast('error', err.message || 'Failed to load customers');
+      if (!silent) showToast('error', err.message || 'Failed to load customers');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }
 
@@ -98,11 +102,16 @@ export default function CustomersPage() {
           <h1 className="page-title flex items-center gap-2">
             <span className="material-symbols-outlined text-amber-500">person</span> Customer Directory
           </h1>
-          <p className="page-subtitle">Manage customer profiles, contact information, and order history</p>
+          <p className="page-subtitle">Manage customer profiles, contact information, and order history (Auto-refreshes every 5s)</p>
         </div>
-        <button className="btn-primary flex items-center gap-1" onClick={handleOpenAdd}>
-          <span className="material-symbols-outlined text-sm">person_add</span> Add Customer
-        </button>
+        <div className="flex items-center gap-2">
+          <button className="btn-secondary flex items-center gap-1" onClick={() => fetchCustomers(false)} title="Refresh Customers">
+            <span className={`material-symbols-outlined text-sm ${loading ? 'animate-spin' : ''}`}>refresh</span> Refresh
+          </button>
+          <button className="btn-primary flex items-center gap-1" onClick={handleOpenAdd}>
+            <span className="material-symbols-outlined text-sm">person_add</span> Add Customer
+          </button>
+        </div>
       </div>
 
       <div className="report-filters mb-4">

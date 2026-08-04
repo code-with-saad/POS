@@ -144,11 +144,16 @@ export default function InventoryPage() {
           <h1 className="page-title flex items-center gap-2">
             <span className="material-symbols-outlined text-amber-500">inventory_2</span> Inventory &amp; Stock
           </h1>
-          <p className="page-subtitle">Track raw materials, stock levels, and min-stock alerts</p>
+          <p className="page-subtitle">Track raw materials, stock levels, and min-stock alerts (Auto-refreshes every 5s)</p>
         </div>
-        <button className="btn-primary flex items-center gap-1" onClick={handleOpenAdd}>
-          <span className="material-symbols-outlined text-sm">add</span> Add Stock Item
-        </button>
+        <div className="flex items-center gap-2">
+          <button className="btn-secondary flex items-center gap-1" onClick={() => fetchInventory(false)} title="Refresh Inventory">
+            <span className={`material-symbols-outlined text-sm ${loading ? 'animate-spin' : ''}`}>refresh</span> Refresh
+          </button>
+          <button className="btn-primary flex items-center gap-1" onClick={handleOpenAdd}>
+            <span className="material-symbols-outlined text-sm">add</span> Add Stock Item
+          </button>
+        </div>
       </div>
 
       {/* Summary KPI Cards */}

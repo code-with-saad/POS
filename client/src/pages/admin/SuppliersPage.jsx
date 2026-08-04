@@ -27,17 +27,21 @@ export default function SuppliersPage() {
 
   useEffect(() => {
     fetchSuppliers();
+    const interval = setInterval(() => {
+      fetchSuppliers(true);
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  async function fetchSuppliers() {
+  async function fetchSuppliers(silent = false) {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const data = await api.get('/suppliers');
       setSuppliers(data);
     } catch (err) {
-      showToast('error', err.message || 'Failed to load suppliers');
+      if (!silent) showToast('error', err.message || 'Failed to load suppliers');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }
 
@@ -115,11 +119,16 @@ export default function SuppliersPage() {
           <h1 className="page-title flex items-center gap-2">
             <span className="material-symbols-outlined text-amber-500">local_shipping</span> Supplier Management
           </h1>
-          <p className="page-subtitle">Manage vendors, suppliers, supplied categories, and payable balances</p>
+          <p className="page-subtitle">Track raw material vendors, contact points, and outstanding balances (Auto-refreshes every 5s)</p>
         </div>
-        <button className="btn-primary flex items-center gap-1" onClick={handleOpenAdd}>
-          <span className="material-symbols-outlined text-sm">add_business</span> Add Supplier
-        </button>
+        <div className="flex items-center gap-2">
+          <button className="btn-secondary flex items-center gap-1" onClick={() => fetchSuppliers(false)} title="Refresh Suppliers">
+            <span className={`material-symbols-outlined text-sm ${loading ? 'animate-spin' : ''}`}>refresh</span> Refresh
+          </button>
+          <button className="btn-primary flex items-center gap-1" onClick={handleOpenAdd}>
+            <span className="material-symbols-outlined text-sm">add</span> Add Supplier
+          </button>
+        </div>
       </div>
 
       <div className="dashboard-grid mb-6">

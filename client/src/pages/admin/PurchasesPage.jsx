@@ -28,11 +28,15 @@ export default function PurchasesPage() {
 
   useEffect(() => {
     fetchInitialData();
+    const interval = setInterval(() => {
+      fetchInitialData(true);
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  async function fetchInitialData() {
+  async function fetchInitialData(silent = false) {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const [pData, sData, iData] = await Promise.all([
         api.get('/purchases'),
         api.get('/suppliers'),
@@ -42,9 +46,9 @@ export default function PurchasesPage() {
       setSuppliers(sData);
       setInventory(iData);
     } catch (err) {
-      showToast('error', err.message || 'Failed to load purchase data');
+      if (!silent) showToast('error', err.message || 'Failed to load purchase data');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }
 
@@ -135,11 +139,14 @@ export default function PurchasesPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title flex items-center gap-2">
-            <span className="material-symbols-outlined text-amber-500">shopping_cart</span> Purchasing &amp; Expense Entry
+            <span className="material-symbols-outlined text-amber-500">shopping_cart</span> Purchase Orders &amp; Invoices
           </h1>
-          <p className="page-subtitle">Record raw material purchase orders from vendors and update stock</p>
+          <p className="page-subtitle">Record raw material purchase orders from vendors and update stock (Auto-refreshes every 5s)</p>
         </div>
         <div className="flex items-center gap-2">
+          <button className="btn-secondary flex items-center gap-1" onClick={() => fetchInitialData(false)} title="Refresh Purchases">
+            <span className={`material-symbols-outlined text-sm ${loading ? 'animate-spin' : ''}`}>refresh</span> Refresh
+          </button>
           <button className="btn-secondary text-xs text-red-400 flex items-center gap-1 border-red-500/40 hover:bg-red-500/10" onClick={() => setShowResetModal(true)}>
             <span className="material-symbols-outlined text-sm">restart_alt</span> Start New Book (Reset)
           </button>
