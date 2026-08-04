@@ -21,33 +21,39 @@ export async function createOrganization(req, res, next) {
       return res.status(400).json({ success: false, message: 'Name, admin username, and admin password are required' });
     }
 
-    const orgSlug = slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const cleanAdminUsername = String(adminUsername).toLowerCase().trim();
+    const cleanAdminPassword = String(adminPassword).trim();
+
+    const orgSlug = slug
+      ? String(slug).toLowerCase().trim()
+      : name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
     const existingOrg = await Organization.findOne({ slug: orgSlug });
     if (existingOrg) {
       return res.status(400).json({ success: false, message: 'Organization slug or name already exists' });
     }
 
-    const existingUser = await User.findOne({ username: adminUsername.toLowerCase() });
+    const existingUser = await User.findOne({ username: cleanAdminUsername });
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'Admin username already taken' });
     }
 
     // Create Organization
     const organization = await Organization.create({
-      name,
+      name: name.trim(),
       slug: orgSlug,
-      ownerName: ownerName || '',
-      phone: phone || '',
-      email: email || '',
+      ownerName: ownerName ? ownerName.trim() : '',
+      phone: phone ? phone.trim() : '',
+      email: email ? email.trim() : '',
       plan: plan || 'pro',
+      isActive: true,
     });
 
     // Create Org Admin User
-    const hashedPassword = await bcrypt.hash(adminPassword, 10);
+    const hashedPassword = await bcrypt.hash(cleanAdminPassword, 10);
     const adminUser = await User.create({
-      name: ownerName ? `${ownerName} (Admin)` : `${name} Admin`,
-      username: adminUsername.toLowerCase(),
+      name: ownerName ? `${ownerName.trim()} (Admin)` : `${name.trim()} Admin`,
+      username: cleanAdminUsername,
       password: hashedPassword,
       role: 'admin',
       organization: organization._id,

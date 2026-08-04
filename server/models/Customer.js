@@ -38,6 +38,20 @@ const customerSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    receivableBalance: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    paymentHistory: [
+      {
+        amount: { type: Number, required: true, min: 0 },
+        paymentMethod: { type: String, enum: ['cash', 'card'], default: 'cash' },
+        note: { type: String, default: '' },
+        recordedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
     notes: {
       type: String,
       default: '',

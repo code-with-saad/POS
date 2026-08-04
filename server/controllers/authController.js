@@ -16,12 +16,19 @@ export async function login(req, res, next) {
       return res.status(400).json({ success: false, message: 'Username and password are required' });
     }
 
-    const user = await User.findOne({ username: username.toLowerCase().trim() });
+    const cleanUsername = String(username).toLowerCase().trim();
+    const cleanPassword = String(password).trim();
+
+    const user = await User.findOne({ username: cleanUsername }).populate('organization');
     if (!user || !user.isActive) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    const match = await bcrypt.compare(password, user.password);
+    if (user.organization && user.organization.isActive === false) {
+      return res.status(403).json({ success: false, message: 'Organization account is inactive. Please contact support.' });
+    }
+
+    const match = await bcrypt.compare(cleanPassword, user.password);
     if (!match) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }

@@ -1,4 +1,5 @@
 import { Customer } from '../models/Customer.js';
+import { Order } from '../models/Order.js';
 
 export async function getCustomers(req, res, next) {
   try {
@@ -37,3 +38,45 @@ export async function deleteCustomer(req, res, next) {
     next(err);
   }
 }
+
+export async function getCustomerOrders(req, res, next) {
+  try {
+    const orders = await Order.find({ customer: req.params.id })
+      .populate('cashier', 'name username')
+      .sort({ createdAt: -1 });
+    res.json({ success: true, data: orders });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function recordCustomerPayment(req, res, next) {
+  try {
+    const { amount, paymentMethod = 'cash', note = '' } = req.body;
+    const numAmount = Number(amount);
+    if (!numAmount || numAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'Valid payment amount is required' });
+    }
+
+    const customer = await Customer.findById(req.params.id);
+    if (!customer) {
+      return res.status(404).json({ success: false, message: 'Customer not found' });
+    }
+
+    const newBalance = Math.max(0, (customer.receivableBalance || 0) - numAmount);
+    customer.receivableBalance = newBalance;
+    customer.paymentHistory.push({
+      amount: numAmount,
+      paymentMethod,
+      note,
+      recordedBy: req.user?._id,
+      createdAt: new Date(),
+    });
+
+    await customer.save();
+    res.json({ success: true, data: customer, message: `Payment of ${numAmount} recorded successfully!` });
+  } catch (err) {
+    next(err);
+  }
+}
+

@@ -246,6 +246,9 @@ export async function createOrder(req, res, next) {
             cust.totalSpent = (cust.totalSpent || 0) + finalOrder.total;
             cust.totalOrders = (cust.totalOrders || 0) + 1;
             cust.loyaltyPoints = (cust.loyaltyPoints || 0) + Math.floor(finalOrder.total / 100);
+            if (paymentMethod === 'credit') {
+              cust.receivableBalance = (cust.receivableBalance || 0) + finalOrder.total;
+            }
             await cust.save();
           }
         } catch (cErr) {

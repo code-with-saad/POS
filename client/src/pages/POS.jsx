@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useToast } from '../context/ToastContext.jsx';
 import { api } from '../api/client.js';
 import ItemVisual from '../components/ItemVisual.jsx';
 import SideDrawer from '../components/SideDrawer.jsx';
 
 export default function POS() {
   const { user, logout } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -14,6 +16,7 @@ export default function POS() {
   const [categories, setCategories] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [tables, setTables] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -34,6 +37,7 @@ export default function POS() {
 
   // Checkout State
   const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [cashTendered, setCashTendered] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [completedOrder, setCompletedOrder] = useState(null);
@@ -151,17 +155,19 @@ export default function POS() {
   async function fetchPOSData() {
     try {
       setLoading(true);
-      const [catsData, itemsData, tablesData, settingsData] = await Promise.all([
+      const [catsData, itemsData, tablesData, settingsData, customersData] = await Promise.all([
         api.get('/categories'),
         api.get('/menu-items'),
         api.get('/tables'),
         api.get('/settings'),
+        api.get('/customers'),
       ]);
 
       setCategories(catsData);
       setMenuItems(itemsData);
       setTables(tablesData);
       setSettings(settingsData);
+      setCustomers(customersData || []);
 
       // Auto-select first table if none selected
       const defaultTable = tablesData[0];
@@ -329,8 +335,10 @@ export default function POS() {
       // Refresh cart to show all items as sent
       handleSelectTable(selectedTable);
       setError('');
+      showToast('success', `👨‍🍳 ${unsentItems.length} new item(s) sent to kitchen display successfully!`);
     } catch (err) {
       setError(err.message || 'Failed to send order to kitchen');
+      showToast('error', err.message || 'Failed to send order to kitchen');
     } finally {
       setSubmitting(false);
     }
@@ -342,6 +350,11 @@ export default function POS() {
     if (orderType === 'dine-in' && !selectedTable) {
       setError('Please select a dining table for dine-in orders');
       setShowTableModal(true);
+      return;
+    }
+
+    if (paymentMethod === 'credit' && !selectedCustomerId) {
+      setCheckoutError('Please select a customer from the dropdown to charge to their Credit Tab.');
       return;
     }
 
@@ -364,6 +377,7 @@ export default function POS() {
       const orderPayload = {
         orderType,
         tableId: orderType === 'dine-in' ? selectedTable?._id : undefined,
+        customerId: selectedCustomerId || undefined,
         items: unsentItems.length > 0 ? unsentItems.map((ci) => ({
           menuItem: ci.menuItem,
           variant: ci.variant || undefined,
@@ -893,10 +907,27 @@ export default function POS() {
                 </div>
               </div>
 
+              {/* Customer Selector */}
+              <div className="form-group mb-3">
+                <label className="text-xs font-semibold text-slate-300 mb-1 block">Customer Profile (Optional for Credit Tab)</label>
+                <select
+                  value={selectedCustomerId}
+                  onChange={(e) => setSelectedCustomerId(e.target.value)}
+                  className="settings-input w-full"
+                >
+                  <option value="">-- Guest Customer --</option>
+                  {customers.map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.name} {c.phone ? `(${c.phone})` : ''} - Due: PKR {(c.receivableBalance || 0).toLocaleString()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Payment Method Selector */}
               <div className="form-group">
                 <label>Payment Method</label>
-                <div className="payment-method-toggle">
+                <div className="payment-method-toggle grid grid-cols-3 gap-1">
                   <button
                     type="button"
                     className={`pay-btn ${paymentMethod === 'cash' ? 'pay-btn-active' : ''}`}
@@ -909,7 +940,19 @@ export default function POS() {
                     className={`pay-btn ${paymentMethod === 'card' ? 'pay-btn-active' : ''}`}
                     onClick={() => setPaymentMethod('card')}
                   >
-                    💳 Card / POS Machine
+                    💳 Card / Digital
+                  </button>
+                  <button
+                    type="button"
+                    className={`pay-btn ${paymentMethod === 'credit' ? 'pay-btn-active' : ''}`}
+                    onClick={() => {
+                      setPaymentMethod('credit');
+                      if (!selectedCustomerId && customers.length > 0) {
+                        setSelectedCustomerId(customers[0]._id);
+                      }
+                    }}
+                  >
+                    📋 Credit Tab
                   </button>
                 </div>
               </div>

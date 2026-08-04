@@ -87,9 +87,14 @@ const orderSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    customer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Customer',
+      default: null,
+    },
     paymentMethod: {
       type: String,
-      enum: ['cash', 'card'],
+      enum: ['cash', 'card', 'credit'],
       default: 'cash',
     },
     status: {

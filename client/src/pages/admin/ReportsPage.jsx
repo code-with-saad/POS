@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { reportsApi } from '../../api/reports.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useSettings } from '../../context/SettingsContext.jsx';
+import PieChart from '../../components/PieChart.jsx';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 function fmt(n, currency = 'PKR') {
@@ -265,120 +266,172 @@ export default function ReportsPage() {
 
           {/* ── Items Tab ───────────────────────────────────────── */}
           {tab === 'Items' && (
-            <div className="table-card">
-              {items.length === 0 ? (
-                <div className="empty-state"><span className="empty-icon">🍔</span><h2>No item data</h2></div>
-              ) : (
-                <div className="table-responsive">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>Item Name</th>
-                        <th>Qty Sold</th>
-                        <th>Revenue</th>
-                        <th>Avg Price</th>
-                        <th>% of Sales</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {items.map((item, i) => {
-                        const totalRev = items.reduce((s, x) => s + x.totalRevenue, 0);
-                        return (
-                          <tr key={item._id || i}>
-                            <td>
-                              <span className="item-rank">{i + 1}</span>
-                            </td>
-                            <td className="font-semibold">{item.name}</td>
-                            <td>{item.totalQty}</td>
-                            <td className="price-cell">{fmt(item.totalRevenue, currency)}</td>
-                            <td>{fmt(item.avgPrice, currency)}</td>
-                            <td>
-                              <div className="flex items-center gap-2">
-                                <Bar value={item.totalRevenue} max={items[0]?.totalRevenue} />
-                                <span className="text-sm text-muted">{pct(item.totalRevenue, totalRev)}</span>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+            <div className="space-y-6">
+              {items.length > 0 && (
+                <div className="table-card p-4">
+                  <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-amber-500">pie_chart</span> Top Selling Items Revenue Share
+                  </h3>
+                  <PieChart
+                    data={items.slice(0, 7).map((item) => ({
+                      label: item.name,
+                      value: item.totalRevenue,
+                    }))}
+                    donut={true}
+                    size={220}
+                  />
                 </div>
               )}
+              <div className="table-card">
+                {items.length === 0 ? (
+                  <div className="empty-state"><span className="empty-icon">🍔</span><h2>No item data</h2></div>
+                ) : (
+                  <div className="table-responsive">
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Item Name</th>
+                          <th>Qty Sold</th>
+                          <th>Revenue</th>
+                          <th>Avg Price</th>
+                          <th>% of Sales</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {items.map((item, i) => {
+                          const totalRev = items.reduce((s, x) => s + x.totalRevenue, 0);
+                          return (
+                            <tr key={item._id || i}>
+                              <td>
+                                <span className="item-rank">{i + 1}</span>
+                              </td>
+                              <td className="font-semibold">{item.name}</td>
+                              <td>{item.totalQty}</td>
+                              <td className="price-cell">{fmt(item.totalRevenue, currency)}</td>
+                              <td>{fmt(item.avgPrice, currency)}</td>
+                              <td>
+                                <div className="flex items-center gap-2">
+                                  <Bar value={item.totalRevenue} max={items[0]?.totalRevenue} />
+                                  <span className="text-sm text-muted">{pct(item.totalRevenue, totalRev)}</span>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
           {/* ── Payment Tab ─────────────────────────────────────── */}
           {tab === 'Payment' && (
-            <div className="report-two-col">
-              {/* By method */}
-              <div className="table-card">
-                <div className="p-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
-                  <h3 className="font-semibold">By Payment Method</h3>
+            <div className="space-y-6">
+              {/* Pie Charts Summary Row */}
+              <div className="report-two-col">
+                <div className="table-card p-4">
+                  <h3 className="font-semibold text-base mb-2 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-amber-500">pie_chart</span> Revenue by Payment Method
+                  </h3>
+                  <PieChart
+                    data={payment.byPaymentMethod.map((row) => ({
+                      label: row._id === 'credit' ? 'Credit Tab' : row._id.toUpperCase(),
+                      value: row.revenue,
+                      color: row._id === 'cash' ? '#10b981' : row._id === 'card' ? '#3b82f6' : '#f59e0b',
+                    }))}
+                    donut={true}
+                    size={200}
+                  />
                 </div>
-                {payment.byPaymentMethod.length === 0 ? (
-                  <div className="empty-state"><p>No data</p></div>
-                ) : (
-                  <table className="data-table">
-                    <thead>
-                      <tr><th>Method</th><th>Orders</th><th>Revenue</th><th>Share</th></tr>
-                    </thead>
-                    <tbody>
-                      {payment.byPaymentMethod.map((row) => {
-                        const total = payment.byPaymentMethod.reduce((s, x) => s + x.revenue, 0);
-                        return (
-                          <tr key={row._id}>
-                            <td className="capitalize font-semibold">{row._id}</td>
-                            <td>{row.count}</td>
-                            <td className="price-cell">{fmt(row.revenue, currency)}</td>
-                            <td>
-                              <div className="flex items-center gap-2">
-                                <Bar value={row.revenue} max={total} color={row._id === 'cash' ? '#10b981' : '#3b82f6'} />
-                                <span className="text-sm">{pct(row.revenue, total)}</span>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                )}
+                <div className="table-card p-4">
+                  <h3 className="font-semibold text-base mb-2 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-amber-500">pie_chart</span> Revenue by Order Type
+                  </h3>
+                  <PieChart
+                    data={payment.byOrderType.map((row) => ({
+                      label: row._id.toUpperCase(),
+                      value: row.revenue,
+                      color: row._id === 'dine-in' ? '#f59e0b' : row._id === 'takeaway' ? '#a855f7' : '#3b82f6',
+                    }))}
+                    donut={true}
+                    size={200}
+                  />
+                </div>
               </div>
 
-              {/* By order type */}
-              <div className="table-card">
-                <div className="p-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
-                  <h3 className="font-semibold">By Order Type</h3>
+              {/* Data Tables */}
+              <div className="report-two-col">
+                {/* By method */}
+                <div className="table-card">
+                  <div className="p-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                    <h3 className="font-semibold">By Payment Method Breakdown</h3>
+                  </div>
+                  {payment.byPaymentMethod.length === 0 ? (
+                    <div className="empty-state"><p>No data</p></div>
+                  ) : (
+                    <table className="data-table">
+                      <thead>
+                        <tr><th>Method</th><th>Orders</th><th>Revenue</th><th>Share</th></tr>
+                      </thead>
+                      <tbody>
+                        {payment.byPaymentMethod.map((row) => {
+                          const total = payment.byPaymentMethod.reduce((s, x) => s + x.revenue, 0);
+                          return (
+                            <tr key={row._id}>
+                              <td className="capitalize font-semibold">{row._id === 'credit' ? 'Credit Tab' : row._id}</td>
+                              <td>{row.count}</td>
+                              <td className="price-cell">{fmt(row.revenue, currency)}</td>
+                              <td>
+                                <div className="flex items-center gap-2">
+                                  <Bar value={row.revenue} max={total} color={row._id === 'cash' ? '#10b981' : row._id === 'card' ? '#3b82f6' : '#f59e0b'} />
+                                  <span className="text-sm">{pct(row.revenue, total)}</span>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
-                {payment.byOrderType.length === 0 ? (
-                  <div className="empty-state"><p>No data</p></div>
-                ) : (
-                  <table className="data-table">
-                    <thead>
-                      <tr><th>Type</th><th>Orders</th><th>Revenue</th><th>Share</th></tr>
-                    </thead>
-                    <tbody>
-                      {payment.byOrderType.map((row) => {
-                        const total = payment.byOrderType.reduce((s, x) => s + x.revenue, 0);
-                        const colors = { 'dine-in': '#f59e0b', takeaway: '#a855f7', delivery: '#3b82f6' };
-                        return (
-                          <tr key={row._id}>
-                            <td className="capitalize font-semibold">{row._id}</td>
-                            <td>{row.count}</td>
-                            <td className="price-cell">{fmt(row.revenue, currency)}</td>
-                            <td>
-                              <div className="flex items-center gap-2">
-                                <Bar value={row.revenue} max={total} color={colors[row._id] || 'var(--color-primary)'} />
-                                <span className="text-sm">{pct(row.revenue, total)}</span>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                )}
+
+                {/* By order type */}
+                <div className="table-card">
+                  <div className="p-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                    <h3 className="font-semibold">By Order Type Breakdown</h3>
+                  </div>
+                  {payment.byOrderType.length === 0 ? (
+                    <div className="empty-state"><p>No data</p></div>
+                  ) : (
+                    <table className="data-table">
+                      <thead>
+                        <tr><th>Type</th><th>Orders</th><th>Revenue</th><th>Share</th></tr>
+                      </thead>
+                      <tbody>
+                        {payment.byOrderType.map((row) => {
+                          const total = payment.byOrderType.reduce((s, x) => s + x.revenue, 0);
+                          const colors = { 'dine-in': '#f59e0b', takeaway: '#a855f7', delivery: '#3b82f6' };
+                          return (
+                            <tr key={row._id}>
+                              <td className="capitalize font-semibold">{row._id}</td>
+                              <td>{row.count}</td>
+                              <td className="price-cell">{fmt(row.revenue, currency)}</td>
+                              <td>
+                                <div className="flex items-center gap-2">
+                                  <Bar value={row.revenue} max={total} color={colors[row._id] || 'var(--color-primary)'} />
+                                  <span className="text-sm">{pct(row.revenue, total)}</span>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
               </div>
             </div>
           )}
