@@ -20,16 +20,33 @@ export default function Login() {
     setLoading(true);
     try {
       const user = await login(form.username, form.password);
-      if (from && from !== '/login') {
-        navigate(from, { replace: true });
-      } else if (user.role === 'superadmin') {
+
+      // Role-based redirect — respect "from" only if the role can actually visit it
+      const roleHome = {
+        superadmin: '/superadmin/organizations',
+        admin: '/admin',
+        manager: '/admin',
+        cashier: '/pos',
+        kitchen: '/kitchen',
+      };
+
+      // Superadmin should NEVER land on /admin or /pos — always go to their portal
+      if (user.role === 'superadmin') {
         navigate('/superadmin/organizations', { replace: true });
-      } else if (user.role === 'admin' || user.role === 'manager') {
-        navigate('/admin', { replace: true });
-      } else if (user.role === 'kitchen') {
+        return;
+      }
+
+      // Kitchen should NEVER land on /pos or /admin
+      if (user.role === 'kitchen') {
         navigate('/kitchen', { replace: true });
+        return;
+      }
+
+      // For others, respect "from" if it exists and is not /login
+      if (from && from !== '/login' && from !== '/locked') {
+        navigate(from, { replace: true });
       } else {
-        navigate('/pos', { replace: true });
+        navigate(roleHome[user.role] || '/pos', { replace: true });
       }
     } catch (err) {
       setError(err.message || 'Login failed');
@@ -50,9 +67,9 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="login-username">Username</label>
             <input
-              id="username"
+              id="login-username"
               type="text"
               autoComplete="username"
               placeholder="Enter username"
@@ -63,21 +80,22 @@ export default function Login() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="login-password">Password</label>
             <div style={{ position: 'relative' }}>
               <input
-                id="password"
+                id="login-password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
                 placeholder="Enter password"
                 value={form.password}
                 onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                style={{ paddingRight: '2.75rem' }}
+                style={{ paddingRight: '2.8rem' }}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
                 style={{
                   position: 'absolute',
                   right: '0.75rem',
@@ -88,10 +106,10 @@ export default function Login() {
                   cursor: 'pointer',
                   color: '#a1a1aa',
                   padding: '0',
+                  lineHeight: 1,
                   display: 'flex',
                   alignItems: 'center',
                 }}
-                title={showPassword ? 'Hide password' : 'Show password'}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>
                   {showPassword ? 'visibility_off' : 'visibility'}
