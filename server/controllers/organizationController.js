@@ -15,7 +15,7 @@ export async function getOrganizations(req, res, next) {
 /** POST /api/organizations - Create new organization & its initial Admin user */
 export async function createOrganization(req, res, next) {
   try {
-    const { name, slug, ownerName, phone, email, adminUsername, adminPassword } = req.body;
+    const { name, slug, ownerName, phone, email, plan, adminUsername, adminPassword } = req.body;
 
     if (!name || !adminUsername || !adminPassword) {
       return res.status(400).json({ success: false, message: 'Name, admin username, and admin password are required' });
@@ -40,6 +40,7 @@ export async function createOrganization(req, res, next) {
       ownerName: ownerName || '',
       phone: phone || '',
       email: email || '',
+      plan: plan || 'pro',
     });
 
     // Create Org Admin User
@@ -65,6 +66,43 @@ export async function createOrganization(req, res, next) {
         },
       },
     });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/** PUT /api/organizations/:id - Update existing organization */
+export async function updateOrganization(req, res, next) {
+  try {
+    const { name, slug, ownerName, phone, email, plan, isActive } = req.body;
+    const org = await Organization.findById(req.params.id);
+    if (!org) {
+      return res.status(404).json({ success: false, message: 'Organization not found' });
+    }
+
+    if (name) org.name = name;
+    if (slug) org.slug = slug;
+    if (ownerName !== undefined) org.ownerName = ownerName;
+    if (phone !== undefined) org.phone = phone;
+    if (email !== undefined) org.email = email;
+    if (plan) org.plan = plan;
+    if (isActive !== undefined) org.isActive = isActive;
+
+    await org.save();
+    res.json({ success: true, data: org });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/** DELETE /api/organizations/:id - Delete an organization */
+export async function deleteOrganization(req, res, next) {
+  try {
+    const org = await Organization.findByIdAndDelete(req.params.id);
+    if (!org) {
+      return res.status(404).json({ success: false, message: 'Organization not found' });
+    }
+    res.json({ success: true, message: 'Organization deleted' });
   } catch (err) {
     next(err);
   }
