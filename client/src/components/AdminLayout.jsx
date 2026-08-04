@@ -15,23 +15,36 @@ export default function AdminLayout() {
   }
 
   const allNavItems = [
-    { path: '/admin', label: 'Dashboard', icon: 'dashboard', end: true, roles: ['admin', 'manager'] },
-    { path: '/pos', label: 'POS Terminal', icon: 'point_of_sale', roles: ['admin', 'manager'] },
-    { path: '/admin/tables', label: 'Tables', icon: 'table_restaurant', roles: ['admin', 'manager'] },
-    { path: '/kitchen', label: 'Kitchen View', icon: 'soup_kitchen', roles: ['admin', 'manager'] },
-    { path: '/admin/orders', label: 'Order History', icon: 'receipt_long', roles: ['admin', 'manager'] },
-    { path: '/admin/reports', label: 'Reports', icon: 'analytics', roles: ['admin', 'manager'] },
-    { path: '/admin/inventory', label: 'Inventory', icon: 'inventory_2', roles: ['admin', 'manager'] },
-    { path: '/admin/customers', label: 'Customers', icon: 'person', roles: ['admin', 'manager'] },
-    { path: '/admin/suppliers', label: 'Suppliers', icon: 'local_shipping', roles: ['admin', 'manager'] },
-    { path: '/admin/purchases', label: 'Purchasing', icon: 'shopping_cart', roles: ['admin', 'manager'] },
-    { path: '/admin/categories', label: 'Categories', icon: 'category', roles: ['admin', 'manager'] },
-    { path: '/admin/menu-items', label: 'Menu Items', icon: 'restaurant_menu', roles: ['admin', 'manager'] },
-    { path: '/admin/users', label: 'Staff & Cashiers', icon: 'group', roles: ['admin'] },
-    { path: '/admin/settings', label: 'Settings', icon: 'settings', roles: ['admin'] },
+    { path: '/admin',           label: 'Dashboard',       icon: 'dashboard',       end: true,  roles: ['admin','manager'],                          module: null },
+    { path: '/pos',             label: 'POS Terminal',    icon: 'point_of_sale',   roles: ['admin','manager'],                                      module: 'pos' },
+    { path: '/admin/tables',    label: 'Tables',          icon: 'table_restaurant',roles: ['admin','manager'],                                      module: 'tables' },
+    { path: '/kitchen',         label: 'Kitchen View',    icon: 'soup_kitchen',    roles: ['admin','manager'],                                      module: 'kitchen' },
+    { path: '/waiter',          label: 'Waiter Screen',   icon: 'room_service',    roles: ['admin','manager'],                                      module: 'waiter' },
+    { path: '/admin/orders',    label: 'Order History',   icon: 'receipt_long',    roles: ['admin','manager'],                                      module: 'orders' },
+    { path: '/admin/reports',   label: 'Reports',         icon: 'analytics',       roles: ['admin','manager'],                                      module: 'reports' },
+    { path: '/admin/inventory', label: 'Inventory',       icon: 'inventory_2',     roles: ['admin','manager'],                                      module: 'inventory' },
+    { path: '/admin/customers', label: 'Customers',       icon: 'person',          roles: ['admin','manager'],                                      module: 'customers' },
+    { path: '/admin/suppliers', label: 'Suppliers',       icon: 'local_shipping',  roles: ['admin','manager'],                                      module: 'suppliers' },
+    { path: '/admin/purchases', label: 'Purchasing',      icon: 'shopping_cart',   roles: ['admin','manager'],                                      module: 'purchases' },
+    { path: '/admin/categories',label: 'Categories',      icon: 'category',        roles: ['admin','manager'],                                      module: null },
+    { path: '/admin/menu-items',label: 'Menu Items',      icon: 'restaurant_menu', roles: ['admin','manager'],                                      module: null },
+    { path: '/admin/users',     label: 'Staff & Cashiers',icon: 'group',           roles: ['admin'],                                                module: null },
+    { path: '/admin/settings',  label: 'Settings',        icon: 'settings',        roles: ['admin'],                                                module: null },
   ];
 
-  const navItems = allNavItems.filter((item) => item.roles.includes(user?.role || 'admin'));
+  // If user has explicit allowedModules, only show items whose module key is in that list
+  // (or items with no module key that are available to their role)
+  const hasCustomModules = Array.isArray(user?.allowedModules) && user.allowedModules.length > 0;
+
+  const navItems = allNavItems.filter((item) => {
+    if (user?.role === 'admin' || user?.role === 'superadmin') return true;
+    if (hasCustomModules) {
+      // Show module-keyed items if user has that module, show null-module items only for their role
+      if (item.module) return user.allowedModules.includes(item.module);
+      return false;
+    }
+    return item.roles.includes(user?.role || 'admin');
+  });
 
   return (
     <div className="admin-layout">

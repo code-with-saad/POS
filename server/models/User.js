@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema(
       ref: 'Organization',
       default: null,
     },
+    allowedModules: {
+      type: [String],
+      default: [],
+    },
     isActive: {
       type: Boolean,
       default: true,

@@ -12,6 +12,11 @@ export default function SuppliersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
+  // Payment Settlement Modal
+  const [paymentTarget, setPaymentTarget] = useState(null);
+  const [payForm, setPayForm] = useState({ amount: '', paymentMethod: 'cash', note: '' });
+  const [paySubmitting, setPaySubmitting] = useState(false);
+
   const [showModal, setShowModal] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [formData, setFormData] = useState({
@@ -100,6 +105,29 @@ export default function SuppliersPage() {
       fetchSuppliers();
     } catch (err) {
       showToast('error', err.message || 'Failed to delete supplier');
+    }
+  }
+
+  async function handleSettlePayment(e) {
+    e.preventDefault();
+    if (!payForm.amount || Number(payForm.amount) <= 0) {
+      showToast('error', 'Enter a valid payment amount');
+      return;
+    }
+    setPaySubmitting(true);
+    try {
+      const res = await api.post(`/suppliers/${paymentTarget._id}/payments`, {
+        amount: Number(payForm.amount),
+        paymentMethod: payForm.paymentMethod,
+        note: payForm.note,
+      });
+      showToast('success', res.message || 'Payment recorded successfully!');
+      setPaymentTarget(null);
+      fetchSuppliers();
+    } catch (err) {
+      showToast('error', err.message || 'Payment failed');
+    } finally {
+      setPaySubmitting(false);
     }
   }
 
@@ -210,6 +238,14 @@ export default function SuppliersPage() {
                     <td className="price-cell font-bold">{currency} {(s.balance || 0).toLocaleString()}</td>
                     <td className="text-right">
                       <div className="action-buttons-group">
+                        <button
+                          className="btn-secondary btn-xs text-emerald-400 border-emerald-500/30"
+                          onClick={() => { setPaymentTarget(s); setPayForm({ amount: '', paymentMethod: 'cash', note: '' }); }}
+                          title="Pay / Settle Balance"
+                          disabled={(s.balance || 0) <= 0}
+                        >
+                          <span className="material-symbols-outlined text-xs">payments</span> Pay
+                        </button>
                         <button className="btn-icon" onClick={() => handleOpenEdit(s)} title="Edit">
                           <span className="material-symbols-outlined text-xs">edit</span>
                         </button>
@@ -313,6 +349,62 @@ export default function SuppliersPage() {
               <div className="modal-actions">
                 <button type="button" className="btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
                 <button type="submit" className="btn-primary">{editingSupplier ? 'Update Supplier' : 'Save Supplier'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Supplier Payment Settlement Modal */}
+      {paymentTarget && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <div className="modal-header">
+              <h3 className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-emerald-400">payments</span>
+                Pay Supplier — {paymentTarget.name}
+              </h3>
+              <button className="modal-close" onClick={() => setPaymentTarget(null)}>✕</button>
+            </div>
+            <form onSubmit={handleSettlePayment} className="modal-form">
+              <div className="p-3 rounded-lg bg-red-950/30 border border-red-500/30 mb-4 flex justify-between items-center">
+                <span className="text-sm font-semibold text-slate-300">Outstanding Balance Due:</span>
+                <span className="text-lg font-bold text-red-400">{currency} {(paymentTarget.balance || 0).toLocaleString()}</span>
+              </div>
+              <div className="form-group">
+                <label>Payment Amount ({currency}) *</label>
+                <input
+                  type="number"
+                  min="1"
+                  max={paymentTarget.balance}
+                  required
+                  placeholder="Enter amount to pay..."
+                  value={payForm.amount}
+                  onChange={(e) => setPayForm({ ...payForm, amount: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Payment Method</label>
+                <select value={payForm.paymentMethod} onChange={(e) => setPayForm({ ...payForm, paymentMethod: e.target.value })}>
+                  <option value="cash">Cash</option>
+                  <option value="card">Card / Digital</option>
+                  <option value="bank">Bank Transfer</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Note / Reference (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Invoice #1234, weekly settlement..."
+                  value={payForm.note}
+                  onChange={(e) => setPayForm({ ...payForm, note: e.target.value })}
+                />
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={() => setPaymentTarget(null)}>Cancel</button>
+                <button type="submit" className="btn-primary bg-emerald-600 hover:bg-emerald-500" disabled={paySubmitting}>
+                  {paySubmitting ? 'Processing...' : 'Record Payment'}
+                </button>
               </div>
             </form>
           </div>

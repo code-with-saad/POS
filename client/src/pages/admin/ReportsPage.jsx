@@ -193,7 +193,7 @@ export default function ReportsPage() {
         <>
           {/* ── Summary Tab ─────────────────────────────────────── */}
           {tab === 'Summary' && summary && (
-            <div>
+            <div className="space-y-6">
               <div className="report-stat-grid">
                 <StatCard label="Total Revenue" value={fmt(summary.totalRevenue, currency)} accent="#f59e0b" />
                 <StatCard label="Completed Orders" value={summary.completedOrders.toLocaleString()} accent="#10b981" />
@@ -211,6 +211,72 @@ export default function ReportsPage() {
               {/* Revenue range info */}
               <div className="report-range-banner">
                 📅 Showing data from <strong>{range.from}</strong> to <strong>{range.to}</strong>
+              </div>
+
+              {/* Charts Row */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {/* Order Type Distribution */}
+                {summary.byOrderType && (
+                  <div className="admin-card p-4">
+                    <h3 className="font-bold text-sm text-slate-300 mb-3 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-amber-500 text-base">donut_large</span>
+                      Order Type Split
+                    </h3>
+                    <PieChart
+                      data={[
+                        { label: 'Dine-In', value: summary.byOrderType?.['dine-in'] || 0, color: '#f59e0b' },
+                        { label: 'Takeaway', value: summary.byOrderType?.['takeaway'] || 0, color: '#3b82f6' },
+                        { label: 'Delivery', value: summary.byOrderType?.['delivery'] || 0, color: '#8b5cf6' },
+                      ].filter((d) => d.value > 0)}
+                      size={140}
+                      donut
+                    />
+                  </div>
+                )}
+
+                {/* Order Status Distribution */}
+                <div className="admin-card p-4">
+                  <h3 className="font-bold text-sm text-slate-300 mb-3 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-emerald-500 text-base">assignment_turned_in</span>
+                    Order Status Overview
+                  </h3>
+                  <PieChart
+                    data={[
+                      { label: 'Completed', value: summary.completedOrders || 0, color: '#10b981' },
+                      { label: 'Cancelled', value: summary.cancelledOrders || 0, color: '#ef4444' },
+                      { label: 'Active', value: Math.max(0, summary.totalOrders - summary.completedOrders - summary.cancelledOrders), color: '#f59e0b' },
+                    ].filter((d) => d.value > 0)}
+                    size={140}
+                    donut
+                  />
+                </div>
+
+                {/* Revenue vs Discount vs Tax */}
+                <div className="admin-card p-4">
+                  <h3 className="font-bold text-sm text-slate-300 mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-blue-400 text-base">bar_chart</span>
+                    Revenue Breakdown
+                  </h3>
+                  <div className="space-y-3">
+                    {[
+                      { label: 'Net Revenue', value: summary.totalRevenue, color: '#10b981' },
+                      { label: 'Tax Collected', value: summary.totalTax, color: '#f97316' },
+                      { label: 'Discounts Given', value: summary.totalDiscount, color: '#ef4444' },
+                    ].map((item) => (
+                      <div key={item.label}>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="text-slate-400">{item.label}</span>
+                          <span className="font-semibold" style={{ color: item.color }}>{fmt(item.value, currency)}</span>
+                        </div>
+                        <Bar
+                          value={item.value}
+                          max={summary.totalRevenue || 1}
+                          color={item.color}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}

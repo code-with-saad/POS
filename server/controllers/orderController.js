@@ -101,6 +101,46 @@ export async function createOrder(req, res, next) {
 
       const qty = Math.max(1, Number(item.quantity) || 1);
 
+      // Check ingredient inventory stock
+      try {
+        const { Inventory } = await import('../models/Inventory.js');
+        let invItem = menuItem.inventoryItem ? await Inventory.findById(menuItem.inventoryItem) : null;
+        if (!invItem) {
+          const safeName = menuItem.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          invItem = await Inventory.findOne({
+            $or: [
+              { name: { $regex: new RegExp(safeName, 'i') } },
+              { notes: { $regex: new RegExp(safeName, 'i') } },
+            ],
+          });
+        }
+        if (!invItem) {
+          const words = menuItem.name.split(/\s+/).filter(w => w.length > 2);
+          for (const word of words) {
+            const safeWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            invItem = await Inventory.findOne({
+              $or: [
+                { name: { $regex: new RegExp(safeWord, 'i') } },
+                { notes: { $regex: new RegExp(safeWord, 'i') } },
+              ],
+            });
+            if (invItem) break;
+          }
+        }
+
+        if (invItem) {
+          const requiredQty = (menuItem.ingredientQty || 1) * qty;
+          if (invItem.quantity < requiredQty) {
+            return res.status(400).json({
+              success: false,
+              message: `Insufficient inventory stock for "${menuItem.name}". Available stock: ${invItem.quantity} ${invItem.unit || 'units'}, required: ${requiredQty}. Please replenish stock or select fewer items.`,
+            });
+          }
+        }
+      } catch (invCheckErr) {
+        console.warn('Inventory check warning:', invCheckErr.message);
+      }
+
       let linePrice = menuItem.price;
       let variantName = '';
       if (item.variant) {
@@ -202,6 +242,10 @@ export async function createOrder(req, res, next) {
         }
       } else {
         existingOrder.status = 'pending'; // Reset status to pending so kitchen sees new items
+        if (table) {
+          table.status = 'occupied';
+          await table.save();
+        }
       }
 
       await existingOrder.save();
@@ -230,6 +274,11 @@ export async function createOrder(req, res, next) {
         completedAt: initialStatus === 'completed' ? new Date() : undefined,
         cashier: req.user._id,
       });
+
+      if (table) {
+        table.status = initialStatus === 'completed' ? 'available' : 'occupied';
+        await table.save();
+      }
 
       // Attach customer reference if provided
       if (req.body.customerId) {
@@ -316,7 +365,7 @@ export async function getOrderById(req, res, next) {
 export async function updateOrderStatus(req, res, next) {
   try {
     const { status } = req.body;
-    const validStatuses = ['pending', 'preparing', 'served', 'completed', 'cancelled'];
+    const validStatuses = ['pending', 'preparing', 'ready', 'served', 'completed', 'cancelled'];
     if (!status || !validStatuses.includes(status)) {
       return res.status(400).json({ success: false, message: 'Invalid status' });
     }
@@ -364,6 +413,8 @@ export async function updateOrderStatus(req, res, next) {
       if (order.table) {
         await Table.findByIdAndUpdate(order.table, { status: 'available' });
       }
+    } else if (order.table) {
+      await Table.findByIdAndUpdate(order.table, { status: 'occupied' });
     }
 
     await order.save();

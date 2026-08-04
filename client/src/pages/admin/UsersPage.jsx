@@ -13,6 +13,19 @@ export default function UsersPage() {
   const [showResetModal, setShowResetModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  const ALL_MODULES = [
+    { key: 'inventory',  label: 'Inventory Management' },
+    { key: 'suppliers',  label: 'Suppliers' },
+    { key: 'purchases',  label: 'Purchases / Receiving' },
+    { key: 'customers',  label: 'Customers & Ledger' },
+    { key: 'reports',    label: 'Reports & Analytics' },
+    { key: 'orders',     label: 'Order History' },
+    { key: 'tables',     label: 'Table Management' },
+    { key: 'pos',        label: 'POS Terminal' },
+    { key: 'kitchen',    label: 'Kitchen Display (KDS)' },
+    { key: 'waiter',     label: 'Waiter Screen' },
+  ];
+
   // Form states
   const [formData, setFormData] = useState({
     name: '',
@@ -21,7 +34,17 @@ export default function UsersPage() {
     confirmPassword: '',
     role: 'cashier',
     isActive: true,
+    allowedModules: [],
   });
+
+  function toggleModule(key) {
+    setFormData((prev) => ({
+      ...prev,
+      allowedModules: prev.allowedModules.includes(key)
+        ? prev.allowedModules.filter((m) => m !== key)
+        : [...prev.allowedModules, key],
+    }));
+  }
 
   const [resetPass, setResetPass] = useState({ newPassword: '', confirmPassword: '' });
   const [submitting, setSubmitting] = useState(false);
@@ -52,6 +75,7 @@ export default function UsersPage() {
       confirmPassword: '',
       role: 'cashier',
       isActive: true,
+      allowedModules: [],
     });
     setModalError('');
     setShowAddModal(true);
@@ -64,6 +88,7 @@ export default function UsersPage() {
       username: user.username,
       role: user.role,
       isActive: user.isActive,
+      allowedModules: user.allowedModules || [],
     });
     setModalError('');
     setShowEditModal(true);
@@ -90,6 +115,7 @@ export default function UsersPage() {
         username: formData.username,
         password: formData.password,
         role: formData.role,
+        allowedModules: formData.allowedModules,
       });
       showToast('success', `Account created for ${formData.name}!`);
       setShowAddModal(false);
@@ -111,6 +137,7 @@ export default function UsersPage() {
         username: formData.username,
         role: formData.role,
         isActive: formData.isActive,
+        allowedModules: formData.allowedModules,
       });
       showToast('success', 'User updated successfully!');
       setShowEditModal(false);
@@ -181,6 +208,7 @@ export default function UsersPage() {
                   <th>STAFF MEMBER</th>
                   <th>USERNAME</th>
                   <th>ROLE</th>
+                  <th>MODULE ACCESS</th>
                   <th>STATUS</th>
                   <th>CREATED DATE</th>
                   <th className="text-right">ACTIONS</th>
@@ -206,9 +234,20 @@ export default function UsersPage() {
                         <code className="user-badge-code">@{u.username}</code>
                       </td>
                       <td>
-                        <span className={`badge badge-${u.role === 'admin' ? 'completed' : 'pending'}`}>
+                        <span className={`badge badge-${u.role === 'admin' ? 'completed' : u.role === 'manager' ? 'preparing' : 'pending'}`}>
                           {u.role.toUpperCase()}
                         </span>
+                      </td>
+                      <td>
+                        <div className="flex flex-wrap gap-1 max-w-[200px]">
+                          {(!u.allowedModules || u.allowedModules.length === 0) ? (
+                            <span className="text-xs text-slate-500 italic">All defaults</span>
+                          ) : u.allowedModules.map((mod) => (
+                            <span key={mod} className="px-1.5 py-0.5 text-xs rounded bg-amber-500/15 text-amber-300 border border-amber-500/25 font-mono">
+                              {mod}
+                            </span>
+                          ))}
+                        </div>
                       </td>
                       <td>
                         <span className={`badge ${u.isActive ? 'badge-completed' : 'badge-cancelled'}`}>
@@ -318,6 +357,23 @@ export default function UsersPage() {
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 />
               </div>
+              <div className="form-group">
+                <label className="font-semibold text-sm text-amber-400">Module Access Permissions</label>
+                <p className="text-xs text-slate-400 mb-2">Leave empty for full default access. Check specific modules to restrict access.</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {ALL_MODULES.map((mod) => (
+                    <label key={mod.key} className="flex items-center gap-2 cursor-pointer p-2 rounded-lg border border-slate-700 hover:border-amber-500/50 hover:bg-amber-500/5 transition-colors">
+                      <input
+                        type="checkbox"
+                        className="accent-amber-500 w-4 h-4"
+                        checked={formData.allowedModules.includes(mod.key)}
+                        onChange={() => toggleModule(mod.key)}
+                      />
+                      <span className="text-xs font-medium text-slate-300">{mod.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
               <div className="modal-actions">
                 <button
                   type="button"
@@ -386,6 +442,23 @@ export default function UsersPage() {
                   />
                   <span>Account Active (Allowed to log in)</span>
                 </label>
+              </div>
+              <div className="form-group">
+                <label className="font-semibold text-sm text-amber-400">Module Access Permissions</label>
+                <p className="text-xs text-slate-400 mb-2">Leave empty for full default access. Check specific modules to restrict access.</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {ALL_MODULES.map((mod) => (
+                    <label key={mod.key} className="flex items-center gap-2 cursor-pointer p-2 rounded-lg border border-slate-700 hover:border-amber-500/50 hover:bg-amber-500/5 transition-colors">
+                      <input
+                        type="checkbox"
+                        className="accent-amber-500 w-4 h-4"
+                        checked={formData.allowedModules.includes(mod.key)}
+                        onChange={() => toggleModule(mod.key)}
+                      />
+                      <span className="text-xs font-medium text-slate-300">{mod.label}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
               <div className="modal-actions">
                 <button

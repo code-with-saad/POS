@@ -99,7 +99,7 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'preparing', 'served', 'completed', 'cancelled'],
+      enum: ['pending', 'preparing', 'ready', 'served', 'completed', 'cancelled'],
       default: 'pending',
     },
     cashier: {

@@ -239,13 +239,13 @@ export default function KitchenViewPage() {
                     {isPreparing && (
                       <button
                         className="btn-ticket btn-ticket-serve"
-                        onClick={() => handleStatusUpdate(order._id, 'served')}
+                        onClick={() => handleStatusUpdate(order._id, 'ready')}
                       >
-                        🍽️ Mark Ready / Served
+                        🔔 Mark Ready for Waiter
                       </button>
                     )}
 
-                    {isServed && (
+                    {(order.status === 'ready' || order.status === 'served') && (
                       <button
                         className="btn-ticket btn-ticket-complete"
                         onClick={() => handleStatusUpdate(order._id, 'completed')}

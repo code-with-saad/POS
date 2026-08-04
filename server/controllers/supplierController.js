@@ -37,3 +37,33 @@ export async function deleteSupplier(req, res, next) {
     next(err);
   }
 }
+
+export async function recordSupplierPayment(req, res, next) {
+  try {
+    const { amount, paymentMethod = 'cash', note = '' } = req.body;
+    const numAmount = Number(amount);
+    if (!numAmount || numAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'Valid payment amount is required' });
+    }
+
+    const supplier = await Supplier.findById(req.params.id);
+    if (!supplier) {
+      return res.status(404).json({ success: false, message: 'Supplier not found' });
+    }
+
+    const newBalance = Math.max(0, (supplier.balance || 0) - numAmount);
+    supplier.balance = newBalance;
+    supplier.paymentHistory.push({
+      amount: numAmount,
+      paymentMethod,
+      note,
+      recordedBy: req.user?._id,
+      createdAt: new Date(),
+    });
+
+    await supplier.save();
+    res.json({ success: true, data: supplier, message: `Payment of ${numAmount} to supplier recorded successfully!` });
+  } catch (err) {
+    next(err);
+  }
+}

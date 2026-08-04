@@ -2,10 +2,11 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 /**
- * Wraps a route so only authenticated users with the right role can access it.
+ * Wraps a route so only authenticated users with the right role or module permission can access it.
  * allowedRoles: if omitted, any authenticated user is allowed.
+ * requiredModule: specific module key (e.g. 'tables', 'inventory')
  */
-export default function ProtectedRoute({ children, allowedRoles }) {
+export default function ProtectedRoute({ children, allowedRoles, requiredModule }) {
   const { user, loading } = useAuth();
   const location = useLocation();
 
@@ -21,6 +22,24 @@ export default function ProtectedRoute({ children, allowedRoles }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Admin and Superadmin have full access to everything
+  if (user.role === 'admin' || user.role === 'superadmin') {
+    return children;
+  }
+
+  // Check explicit custom module permissions
+  if (requiredModule && Array.isArray(user.allowedModules) && user.allowedModules.length > 0) {
+    if (user.allowedModules.includes(requiredModule)) {
+      return children;
+    }
+  }
+
+  // Allow entering admin layout shell if user has ANY allowedModule assigned
+  if (!requiredModule && allowedRoles && (allowedRoles.includes('admin') || allowedRoles.includes('manager')) && Array.isArray(user.allowedModules) && user.allowedModules.length > 0) {
+    return children;
+  }
+
+  // Fallback to role check
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to="/locked" replace />;
   }

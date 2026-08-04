@@ -251,10 +251,15 @@ export default function POS() {
             name: menuItem.name,
             variant: variantName,
             price: itemPrice,
+            originalPrice: (!variant && menuItem.originalPrice && menuItem.originalPrice > menuItem.price)
+              ? menuItem.originalPrice
+              : null,
+            isDeal: menuItem.isDeal || false,
             quantity: 1,
             notes: '',
             imageUrl: menuItem.imageUrl,
             categoryName: menuItem.category?.name,
+            isSent: false,
           },
         ];
       }
@@ -418,13 +423,25 @@ export default function POS() {
   }
 
   function handlePrintReceipt() {
-    window.print();
   }
 
   function handleLogout() {
     logout();
     navigate('/login');
   }
+
+  // Auto-dismiss error banner after 8 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(''), 8000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  const isDineInGated =
+    cart.length > 0 &&
+    orderType === 'dine-in' &&
+    (cart.some((ci) => !ci.isSent) || !activeOrder || !['served', 'completed'].includes(activeOrder?.status));
 
   return (
     <div className={`pos-app${drawerOpen ? ' pos-drawer-active' : ''}`}>
@@ -473,6 +490,9 @@ export default function POS() {
         </div>
 
         <div className="pos-header-right">
+          <Link to="/waiter" className="btn-admin-link text-amber-400 font-bold border-amber-500/30 flex items-center gap-1">
+            🔔 Waiter Screen
+          </Link>
           <Link to="/kitchen" className="btn-admin-link">
             👨‍🍳 Kitchen View
           </Link>
@@ -490,7 +510,18 @@ export default function POS() {
         </div>
       </header>
 
-      {error && <div className="alert alert-error pos-alert">{error}</div>}
+      {error && (
+        <div className="alert alert-error pos-alert flex items-center justify-between">
+          <span>{error}</span>
+          <button
+            className="text-white hover:text-amber-400 font-bold text-sm px-2 cursor-pointer"
+            onClick={() => setError('')}
+            title="Dismiss error message"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Main 2-Column Grid */}
       <div className="pos-main-grid">
@@ -659,7 +690,19 @@ export default function POS() {
                           </span>
                         )}
                       </span>
-                      <span className="cart-item-unit-price">Rs. {item.price} each</span>
+                      <span className="cart-item-unit-price flex items-center gap-1 flex-wrap">
+                        {item.originalPrice && item.originalPrice > item.price ? (
+                          <>
+                            <span className="line-through text-slate-500 text-xs">Rs. {item.originalPrice}</span>
+                            <span className="text-amber-400 font-bold">Rs. {item.price}</span>
+                            <span className="text-xs text-emerald-400 font-semibold">
+                              -{Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}% OFF
+                            </span>
+                          </>
+                        ) : (
+                          <span>Rs. {item.price} each</span>
+                        )}
+                      </span>
 
                       {/* Per Item Note Input */}
                       <input
@@ -723,6 +766,22 @@ export default function POS() {
               <span>Rs. {subtotal.toLocaleString()}</span>
             </div>
 
+            {/* Deal savings row */}
+            {(() => {
+              const dealSavings = cart.reduce((acc, ci) => {
+                if (ci.originalPrice && ci.originalPrice > ci.price) {
+                  return acc + (ci.originalPrice - ci.price) * ci.quantity;
+                }
+                return acc;
+              }, 0);
+              return dealSavings > 0 ? (
+                <div className="summary-line text-emerald-400 font-semibold text-xs py-0.5">
+                  <span>🎉 Deal Savings</span>
+                  <span>- Rs. {dealSavings.toLocaleString()}</span>
+                </div>
+              ) : null;
+            })()}
+
             <div className="summary-line">
               <span>Discount (PKR)</span>
               <input
@@ -734,6 +793,13 @@ export default function POS() {
               />
             </div>
 
+            {discountAmount > 0 && (
+              <div className="summary-line text-amber-400 font-semibold text-xs py-0.5">
+                <span>Discount Amount</span>
+                <span>- Rs. {discountAmount.toLocaleString()}</span>
+              </div>
+            )}
+
             <div className="summary-line">
               <span>Tax ({taxRatePercent}%)</span>
               <span>Rs. {tax.toLocaleString()}</span>
@@ -743,6 +809,13 @@ export default function POS() {
               <span>Total Payable</span>
               <span>Rs. {grandTotal.toLocaleString()}</span>
             </div>
+
+            {/* Dine-in Waiter Service Gating Banner */}
+            {orderType === 'dine-in' && isDineInGated && (
+              <div className="p-2 text-xs rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 font-medium text-center">
+                ⏳ Waiting for Waiter Service ({activeOrder ? `Status: ${activeOrder.status.toUpperCase()}` : 'Send to kitchen first'})
+              </div>
+            )}
 
             {/* Cart Action Buttons */}
             <div className="cart-actions flex-col gap-2">
@@ -764,7 +837,12 @@ export default function POS() {
                 <button
                   className="btn-primary flex-2"
                   onClick={() => setShowCheckoutModal(true)}
-                  disabled={cart.length === 0}
+                  disabled={cart.length === 0 || isDineInGated}
+                  title={
+                    isDineInGated
+                      ? 'Dine-in orders must be sent to kitchen and served by Waiter before checkout'
+                      : 'Proceed to Checkout'
+                  }
                 >
                   Checkout &amp; Pay →
                 </button>

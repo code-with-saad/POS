@@ -348,7 +348,13 @@ export default function OrdersHistoryPage() {
                 </div>
               </div>
 
-              <div className="modal-actions">
+              <div className="modal-actions flex justify-between items-center w-full">
+                <button
+                  className="btn-primary flex items-center gap-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold"
+                  onClick={() => window.print()}
+                >
+                  <span className="material-symbols-outlined text-sm">print</span> Print / Regenerate Receipt
+                </button>
                 <button className="btn-secondary" onClick={() => setSelectedOrder(null)}>
                   Close
                 </button>

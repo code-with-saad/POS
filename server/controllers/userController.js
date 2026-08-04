@@ -4,7 +4,11 @@ import { User } from '../models/User.js';
 /** GET /api/users — List all staff members (Admin only) */
 export async function getUsers(req, res, next) {
   try {
-    const users = await User.find()
+    const filter = {};
+    if (req.user?.role !== 'superadmin' && req.user?.organization) {
+      filter.organization = req.user.organization;
+    }
+    const users = await User.find(filter)
       .select('-password')
       .sort({ createdAt: -1 });
     res.json({ success: true, data: users });
@@ -16,7 +20,7 @@ export async function getUsers(req, res, next) {
 /** POST /api/users — Create new cashier or admin user (Admin only) */
 export async function createUser(req, res, next) {
   try {
-    const { name, username, password, role } = req.body;
+    const { name, username, password, role, allowedModules } = req.body;
 
     if (!name || !username || !password) {
       return res.status(400).json({
@@ -34,13 +38,15 @@ export async function createUser(req, res, next) {
     }
 
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password.trim(), salt);
 
     const user = await User.create({
       name: name.trim(),
       username: username.toLowerCase().trim(),
       password: hashedPassword,
-      role: role === 'admin' ? 'admin' : 'cashier',
+      role: role || 'cashier',
+      organization: req.user.organization || null,
+      allowedModules: Array.isArray(allowedModules) ? allowedModules : [],
       isActive: true,
     });
 
@@ -61,7 +67,7 @@ export async function createUser(req, res, next) {
 export async function updateUser(req, res, next) {
   try {
     const { id } = req.params;
-    const { name, username, role, isActive } = req.body;
+    const { name, username, role, isActive, allowedModules } = req.body;
 
     const user = await User.findById(id);
     if (!user) {
@@ -81,7 +87,8 @@ export async function updateUser(req, res, next) {
     }
 
     if (name) user.name = name.trim();
-    if (role) user.role = role === 'admin' ? 'admin' : 'cashier';
+    if (role) user.role = role;
+    if (Array.isArray(allowedModules)) user.allowedModules = allowedModules;
     if (typeof isActive === 'boolean') user.isActive = isActive;
 
     await user.save();

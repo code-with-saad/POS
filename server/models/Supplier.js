@@ -37,6 +37,15 @@ const supplierSchema = new mongoose.Schema(
       type: Number,
       default: 0, // Amount owed to supplier
     },
+    paymentHistory: [
+      {
+        amount: { type: Number, required: true, min: 0 },
+        paymentMethod: { type: String, enum: ['cash', 'card', 'bank'], default: 'cash' },
+        note: { type: String, default: '' },
+        recordedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
     notes: {
       type: String,
       default: '',

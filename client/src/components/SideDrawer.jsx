@@ -36,18 +36,43 @@ export default function SideDrawer({ isOpen, onClose, currentPage = 'Terminal' }
   }
 
   const navItems = [
-    { path: '/admin',       label: 'Dashboard',       icon: '📊', adminOnly: true },
-    { path: '/pos',         label: 'POS Terminal',    icon: '🖥️' },
-    { path: '/admin/tables', label: 'Tables',         icon: '🪑', adminOnly: true },
-    { path: '/kitchen',     label: 'Kitchen View',     icon: '👨‍🍳' },
-    { path: '/admin/orders', label: 'Order History',   icon: '🧾', adminOnly: true },
-    { path: '/admin/categories', label: 'Categories', icon: '📁', adminOnly: true },
-    { path: '/admin/menu-items', label: 'Menu Items', icon: '🍔', adminOnly: true },
-    { path: '/admin/users', label: 'Staff & Cashiers', icon: '👥', adminOnly: true },
-    { path: '/admin/settings', label: 'Settings',     icon: '⚙️', adminOnly: true },
+    // Admin / Manager scope
+    { path: '/admin',              label: 'Dashboard',       icon: 'dashboard',         roles: ['admin','manager'],                    module: null },
+    { path: '/admin/reports',      label: 'Reports',         icon: 'bar_chart',         roles: ['admin','manager'],                    module: 'reports' },
+    { path: '/admin/orders',       label: 'Order History',   icon: 'receipt_long',      roles: ['admin','manager'],                    module: 'orders' },
+    { path: '/admin/tables',       label: 'Tables',          icon: 'table_restaurant',  roles: ['admin','manager'],                    module: 'tables' },
+    { path: '/admin/categories',   label: 'Categories',      icon: 'category',          roles: ['admin','manager'],                    module: null },
+    { path: '/admin/menu-items',   label: 'Menu Items',      icon: 'restaurant_menu',   roles: ['admin','manager'],                    module: null },
+    { path: '/admin/inventory',    label: 'Inventory',       icon: 'inventory_2',       roles: ['admin','manager'],                    module: 'inventory' },
+    { path: '/admin/customers',    label: 'Customers',       icon: 'people',            roles: ['admin','manager'],                    module: 'customers' },
+    { path: '/admin/suppliers',    label: 'Suppliers',       icon: 'local_shipping',    roles: ['admin','manager'],                    module: 'suppliers' },
+    { path: '/admin/purchases',    label: 'Purchases',       icon: 'shopping_cart',     roles: ['admin','manager'],                    module: 'purchases' },
+    { path: '/admin/users',        label: 'Staff & Cashiers',icon: 'badge',             roles: ['admin'],                              module: null },
+    { path: '/admin/settings',     label: 'Settings',        icon: 'settings',          roles: ['admin'],                              module: null },
+    // Shared screens
+    { path: '/pos',                label: 'POS Terminal',    icon: 'point_of_sale',     roles: ['admin','manager','cashier'],          module: 'pos' },
+    { path: '/kitchen',            label: 'Kitchen View',    icon: 'soup_kitchen',      roles: ['admin','manager','cashier','kitchen'],module: 'kitchen' },
+    { path: '/waiter',             label: 'Waiter Screen',   icon: 'room_service',      roles: ['admin','manager','cashier','kitchen'],module: 'waiter' },
   ];
 
-  const visibleItems = navItems.filter((item) => !item.adminOnly || user?.role === 'admin');
+  const visibleItems = navItems.filter((item) => {
+    // Admins and superadmins always see everything
+    if (user?.role === 'admin' || user?.role === 'superadmin') return true;
+
+    const hasCustomModules = Array.isArray(user?.allowedModules) && user.allowedModules.length > 0;
+
+    // Users with custom module assignments: show items by module key, ignoring base role
+    if (hasCustomModules && item.module) {
+      return user.allowedModules.includes(item.module);
+    }
+
+    // Users with custom modules but item has no module key (e.g. Dashboard) — hide it
+    if (hasCustomModules && !item.module) return false;
+
+    // Default: filter by role
+    const roleOk = item.roles.includes(user?.role);
+    return roleOk;
+  });
 
   return (
     <>
@@ -91,7 +116,7 @@ export default function SideDrawer({ isOpen, onClose, currentPage = 'Terminal' }
               }
               onClick={onClose}
             >
-              <span className="drawer-nav-icon">{item.icon}</span>
+              <span className="material-symbols-outlined drawer-nav-icon">{item.icon}</span>
               <span>{item.label}</span>
             </NavLink>
           ))}
